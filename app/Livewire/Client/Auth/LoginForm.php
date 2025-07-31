@@ -25,14 +25,12 @@ class LoginForm extends Component
     public function login()
     {
         $this->validate();
-        $client = \App\Models\Client::where('email', $this->email)->first();
-        if ($client && \Illuminate\Support\Facades\Hash::check($this->password, $client->password)) {
-            \Illuminate\Support\Facades\Auth::login($client, true);
-            $this->reset(['email', 'password']);
-            $this->dispatch('login-success'); // Pour debug Livewire
-            return $this->redirect(route('client.dashboard'), navigate: true);
+        $client = Client::where('email', $this->email)->first();
+        if ($client && Hash::check($this->password, $client->password)) {
+            Auth::guard('client')->login($client, false); // Utilise le guard client
+            return redirect()->route('client.dashboard');
         } else {
-            $this->error = 'Identifiants invalides.';
+            $this->addError('email', 'Identifiants invalides.');
         }
     }
 
