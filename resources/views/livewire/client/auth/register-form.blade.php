@@ -1,8 +1,8 @@
 <div>
     <form wire:submit.prevent="register">
         <div class="mb-5">
-            <input type="text" wire:model="adresse" class="w-full px-5 py-3 rounded-lg border border-blue-900 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 text-lg placeholder-gray-300" placeholder="Adresse" />
-            @error('adresse') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+            <input type="text" wire:model="name" class="w-full px-5 py-3 rounded-lg border border-blue-900 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 text-lg placeholder-gray-300" placeholder="Nom complet" />
+            @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
         </div>
         <div class="mb-5">
             <input type="email" wire:model="email" class="w-full px-5 py-3 rounded-lg border border-blue-900 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 text-lg placeholder-gray-300" placeholder="Email" />

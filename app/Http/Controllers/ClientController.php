@@ -14,6 +14,7 @@ class ClientController extends Controller
     /**
      * Affiche le tableau de bord du client connecté
      */
+
     public function dashboard()
     {
         // Toujours utiliser le guard 'client' si tu as configuré un guard spécifique

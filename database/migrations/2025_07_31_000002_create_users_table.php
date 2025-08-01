@@ -6,12 +6,14 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id('id_utilisateur');
-            $table->string('email')->unique();
-            $table->string('mot_de_passe');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('users')) {
+            Schema::create('users', function (Blueprint $table) {
+                $table->id('id_utilisateur');
+                $table->string('email')->unique();
+                $table->string('mot_de_passe');
+                $table->timestamps();
+            });
+        }
     }
 
     public function down(): void
@@ -19,4 +21,3 @@ return new class extends Migration {
         Schema::dropIfExists('users');
     }
 };
-

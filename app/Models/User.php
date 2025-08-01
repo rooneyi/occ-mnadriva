@@ -8,10 +8,18 @@ use Illuminate\Database\Eloquent\Model;use Illuminate\Foundation\Auth\User as Au
 class User extends Authenticatable
 {
     use HasFactory;
-    protected $primaryKey = 'id_utilisateur';
+
     protected $fillable = [
+        'name',
         'email',
-        'mot_de_passe',
+        'password',
+        'role',
+        'remember_token',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
     ];
 }
 

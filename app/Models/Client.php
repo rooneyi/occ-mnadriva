@@ -8,11 +8,12 @@ use Illuminate\Database\Eloquent\Model;use Illuminate\Foundation\Auth\User as Au
 class Client extends Authenticatable
 {
     use HasFactory;
-    protected $primaryKey = 'id_client';
+
     protected $fillable = [
         'adresse',
         'email',
         'password',
+        'remember_token',
     ];
     /**
      * Pour que l'attribut password soit bien hashé et utilisable par l'auth Laravel

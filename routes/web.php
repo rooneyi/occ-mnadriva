@@ -8,7 +8,7 @@ Route::get('/', function () {
 })->name('home');
 
 Route::view('dashboard', 'dashboard')
-    // ->middleware(['auth', 'verified'])
+    ->middleware(['auth'])
     ->name('dashboard');
 
 Route::middleware(['auth'])->group(function () {
@@ -40,6 +40,11 @@ Route::get('/client/dashboard', [App\Http\Controllers\ClientController::class, '
 Route::get('/client/declaration', function() {
     return view('client.declaration');
 })->name('client.declaration');
+
+// Notifications client (factice)
+Route::get('/client/notifications', function() {
+    return view('client.notifications');
+})->name('client.notifications');
 
 // Téléchargement rapport d'analyse
 Route::get('/client/rapport/{rapportId}/download', [App\Http\Controllers\ClientController::class, 'downloadRapport'])->name('client.rapport.download');

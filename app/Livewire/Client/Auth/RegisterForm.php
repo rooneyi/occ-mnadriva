@@ -1,14 +1,14 @@
 <?php
 namespace App\Livewire\Client\Auth;
 
-use App\Models\Client;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
 
 class RegisterForm extends Component
 {
-    public $adresse;
+    public $name;
     public $email;
     public $password;
     public $password_confirmation;
@@ -16,17 +16,18 @@ class RegisterForm extends Component
     public function register()
     {
         $this->validate([
-            'adresse' => 'required|string',
-            'email' => 'required|email|unique:clients,email',
+            'name' => 'required|string',
+            'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6|confirmed',
         ]);
-        $client = Client::create([
-            'adresse' => $this->adresse,
+        $user = User::create([
+            'name' => $this->name,
             'email' => $this->email,
             'password' => Hash::make($this->password),
+            'role' => 'client',
         ]);
-        Auth::login($client);
-        return redirect()->route('client.dashboard');
+        Auth::login($user);
+        $this->redirect(route('client.dashboard'));
     }
 
     public function render()

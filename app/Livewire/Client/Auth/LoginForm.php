@@ -1,7 +1,7 @@
 <?php
 namespace App\Livewire\Client\Auth;
 
-use App\Models\Client;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
@@ -10,8 +10,7 @@ class LoginForm extends Component
 {
     public $email = '';
     public $password = '';
-    public $error = null;
-
+    public $error ;
     protected $rules = [
         'email' => 'required|email',
         'password' => 'required',
@@ -25,10 +24,11 @@ class LoginForm extends Component
     public function login()
     {
         $this->validate();
-        $client = Client::where('email', $this->email)->first();
-        if ($client && Hash::check($this->password, $client->password)) {
-            Auth::guard('client')->login($client, false); // Utilise le guard client
-            return redirect()->route('client.dashboard');
+        $user = User::where('email', $this->email)->where('role', 'client')->first();
+        if ($user && Hash::check($this->password, $user->password)) {
+            Auth::login($user, true); // Connexion avec le guard Laravel par défaut
+            session()->regenerate(); // Sécurité session
+            $this->redirect(route('client.dashboard'));
         } else {
             $this->addError('email', 'Identifiants invalides.');
         }
