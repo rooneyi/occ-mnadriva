@@ -20,7 +20,11 @@
             <strong>Statut actuel :</strong> {{ $produit->statut ?? 'N/A' }}
         </div>
         <form wire:submit.prevent="valider" class="inline-block mr-2">
-            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Valider</button>
+            <button type="submit"
+                class="px-4 py-2 rounded text-white @if(empty($produit->date_fabrication) || empty($produit->date_expiration) || $statutAuto !== 'passable') bg-gray-400 cursor-not-allowed @else bg-green-600 @endif"
+                @if(empty($produit->date_fabrication) || empty($produit->date_expiration) || $statutAuto !== 'passable') disabled @endif>
+                Valider
+            </button>
         </form>
         <form wire:submit.prevent="rejeter" class="inline-block">
             <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded">Rejeter</button>

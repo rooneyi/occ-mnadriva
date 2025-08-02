@@ -56,7 +56,7 @@ class ValidationProduit extends Component
             $dateFab = \Carbon\Carbon::parse($produit->date_fabrication);
             $dateExp = \Carbon\Carbon::parse($produit->date_expiration);
             $this->moisRestants = $dateFab->diffInMonths($dateExp, false);
-            $this->statutAuto = $this->moisRestants > 3 ? 'passable' : 'non passable';
+            $this->statutAuto = $this->moisRestants > 2 ? 'passable' : 'non passable';
         } else {
             $this->moisRestants = null;
             $this->statutAuto = null;
