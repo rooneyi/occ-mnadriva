@@ -13,17 +13,16 @@
         </select>
     </div>
     @php
-        $produit = null;
-        if($p->id_produit) {
+        if($p->$produitId) {
             $produit = App\Models\Produit::find($produitId);
         }
     @endphp
-    @if($produitId && $produit)
+    @if($produit)
         <div class="mb-4">
-            <strong>Nom :</strong> {{ $produit->nom_produit }}<br>
-            <strong>Description :</strong> {{ $produit->description }}<br>
-            <strong>Date fabrication :</strong> {{ $produit->date_fabrication }}<br>
-            <strong>Date expiration :</strong> {{ $produit->date_expiration }}<br>
+            <strong>Nom :</strong> {{ $p->nom_produit }}<br>
+            <strong>Description :</strong> {{ $p->description }}<br>
+            <strong>Date fabrication :</strong> {{ $p->date_fabrication }}<br>
+            <strong>Date expiration :</strong> {{ $p->date_expiration }}<br>
             <strong>Mois restants avant expiration :</strong> {{ $moisRestants ?? 'N/A' }}<br>
             <strong>Statut automatique :</strong> <span class="font-bold {{ $statutAuto == 'passable' ? 'text-green-600' : 'text-red-600' }}">{{ $statutAuto ?? 'N/A' }}</span><br>
             <strong>Statut actuel :</strong> {{ $produit->statut ?? 'N/A' }}

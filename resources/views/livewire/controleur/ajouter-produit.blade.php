@@ -4,6 +4,8 @@
         <input type="text" wire:model="categorie_produit" placeholder="Catégorie du produit" class="border rounded p-2 mb-2 w-full">
         <input type="text" wire:model="nom_produit" placeholder="Nom du produit" class="border rounded p-2 mb-2 w-full">
         <input type="text" wire:model="description_produit" placeholder="Description du produit" class="border rounded p-2 mb-2 w-full">
+        <input type="date" wire:model="date_fabrication" placeholder="Nom du produit" class="border rounded p-2 mb-2 w-full">
+        <input type="date" wire:model="date_expiration" placeholder="Description du produit" class="border rounded p-2 mb-2 w-full">
         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Enregistrer</button>
     </form>
     @if(session('success'))

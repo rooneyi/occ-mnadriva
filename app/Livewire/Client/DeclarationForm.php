@@ -53,11 +53,10 @@ class DeclarationForm extends Component
         if ($controleur) {
             $controleur->notify(new \App\Notifications\DeclarationSubmitted($declaration));
         }
-        // Notifier l'utilisateur
-        // $user = Auth::user();
-        // if ($user) {
-        //     $user->notify(new \App\Notifications\DeclarationSubmitted($declaration));
-        // }
+        // Notifier l'utilisateur (client)
+        if ($user) {
+            $user->notify(new \App\Notifications\DeclarationSubmitted($declaration));
+        }
 
         $dateReception = now()->locale('fr_FR')->isoFormat('dddd D MMMM YYYY');
         $dateConvocation = now()->addDay()->locale('fr_FR')->isoFormat('dddd D MMMM YYYY');
@@ -81,4 +80,3 @@ class DeclarationForm extends Component
         ]);
     }
 }
-

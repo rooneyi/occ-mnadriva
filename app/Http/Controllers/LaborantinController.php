@@ -11,31 +11,32 @@ use Illuminate\Support\Facades\Storage;
 class LaborantinController extends Controller
 {
     // Affiche le formulaire de saisie des résultats d'analyse
-    public function showAnalyseForm($declarationId)
+    public function showAnalyseForm()
     {
-        $declaration = Declaration::findOrFail($declarationId);
-        return view('laborantin.analyse-form', compact('declaration'));
+        $laborantin = Auth::user();
+        $declarations = \App\Models\Declaration::all();
+        $produits = \App\Models\Produit::all();
+        return view('laborantin.analyse-form', compact('declarations', 'produits'));
     }
 
-    // Remplit et génère un rapport d'analyse
-    public function submitAnalyse(Request $request, $declarationId)
+    // Enregistre et génère le rapport d'analyse, puis le soumet au contrôleur
+    public function storeRapport(Request $request)
     {
         $request->validate([
-            'code_lab' => 'required',
-            'designation_produit' => 'required',
+            'id_declaration' => 'required|integer',
+            'designation_produit' => 'required|string',
             'quantite' => 'required|numeric',
-            'methode_essai' => 'required',
-            'aspect_exterieur' => 'required',
-            'resultat_analyse' => 'required',
+            'methode_essai' => 'required|string',
+            'aspect_exterieur' => 'required|string',
+            'resultat_analyse' => 'required|string',
             'date_fabrication' => 'required|date',
             'date_expiration' => 'required|date',
-            'conclusion' => 'required',
+            'conclusion' => 'required|string',
         ]);
         $laborantin = Auth::user();
-        $rapport = RapportAnalyse::create([
+        $rapport = \App\Models\RapportAnalyse::create([
             'id_laborantin' => $laborantin->id_laborantin,
-            'id_declaration' => $declarationId,
-            'code_lab' => $request->code_lab,
+            'id_declaration' => $request->id_declaration,
             'designation_produit' => $request->designation_produit,
             'quantite' => $request->quantite,
             'methode_essai' => $request->methode_essai,
@@ -45,27 +46,21 @@ class LaborantinController extends Controller
             'date_expiration' => $request->date_expiration,
             'conclusion' => $request->conclusion,
         ]);
-        // Génération PDF (exemple simple avec dompdf)
-        $pdf = app('dompdf.wrapper');
-        $pdf->loadView('laborantin.pdf', ['rapport' => $rapport]);
-        $pdfPath = 'rapports/rapport_'.$rapport->id_rapport.'.pdf';
-        Storage::disk('public')->put($pdfPath, $pdf->output());
-        $rapport->pdf_path = $pdfPath;
-        $rapport->save();
+        // Génération automatique du rapport PDF (optionnel)
         // Notifier le contrôleur
         $controleur = \App\Models\User::where('role', 'controleur')->first();
         if ($controleur) {
             $controleur->notify(new \App\Notifications\AnalyseSubmitted($rapport));
         }
-        return redirect()->route('laborantin.historique')->with('success', 'Rapport généré (PDF) et soumis au contrôleur.');
+        return redirect()->route('laborantin.historique')->with('success', 'Rapport généré et soumis au contrôleur.');
     }
 
     // Historique des analyses
     public function historique()
     {
         $laborantin = Auth::user();
-        $rapports = RapportAnalyse::where('id_laborantin', $laborantin->id_laborantin)->with('declaration')->get();
-        return view('laborantin.historique', compact('rapports'));
+        $analyses = \App\Models\RapportAnalyse::where('id_laborantin', $laborantin->id_laborantin)->latest()->get();
+        return view('laborantin.historique', compact('analyses'));
     }
 
     // Tableau de bord laborantin

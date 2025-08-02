@@ -15,7 +15,7 @@ Route::get('/client/register', function() {
 
 
 // Tableau de bord client
-Route::view('/client/dashboard', 'dashboard')->name('client.dashboard');
+Route::view('/client/dashboard', 'client.dashboard')->name('client.dashboard');
 
 // Formulaire de déclaration (Livewire)
 Route::get('/client/declaration', function() {
@@ -37,7 +37,7 @@ Route::middleware(['auth'])->group(function () {
     Route::view('/controleur/produits/commentaires', 'controleur_commentaires_produit')->name('controleur.produits.commentaires');
     Route::view('/controleur/produits/validation', 'controleur_validation_produit')->name('controleur.produits.validation');
     Route::view('/controleur/demandes', 'controleur_demandes')->name('controleur.demandes');
-
+    Route::get('/controleur/declaration/{id}', [App\Http\Controllers\ControleurController::class, 'showDeclarationDetail'])->name('controleur.declaration.detail');
 });
 // Login universel multi-rôles
 Route::get('/login', [App\Http\Controllers\UniversalLoginController::class, 'showForm'])->name('login');
@@ -57,8 +57,8 @@ Route::middleware(['auth'])->group(function () {
 // Laborantin
 Route::middleware(['auth'])->group(function () {
     Route::get('/laborantin/dashboard', [App\Http\Controllers\LaborantinController::class, 'dashboard'])->name('laborantin.dashboard');
-    Route::get('/laborantin/analyse/{declarationId}', [App\Http\Controllers\LaborantinController::class, 'showAnalyseForm'])->name('laborantin.analyse.form');
-    Route::post('/laborantin/analyse/{declarationId}/submit', [App\Http\Controllers\LaborantinController::class, 'submitAnalyse'])->name('laborantin.analyse.submit');
+    Route::get('/laborantin/analyse', [App\Http\Controllers\LaborantinController::class, 'showAnalyseForm'])->name('laborantin.analyse.form');
+    Route::post('/laborantin/analyse', [App\Http\Controllers\LaborantinController::class, 'storeRapport'])->name('laborantin.rapport.store');
     Route::get('/laborantin/historique', [App\Http\Controllers\LaborantinController::class, 'historique'])->name('laborantin.historique');
 });
 

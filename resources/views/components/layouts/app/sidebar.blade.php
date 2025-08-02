@@ -60,12 +60,11 @@
                    class="block py-2 px-3 rounded transition hover:bg-blue-800 hover:pl-5">Notifications</a>
             @elseif($role === 'laborantin')
                 <a href="{{ route('laborantin.dashboard') }}"
-                   class="block py-2 px-3 rounded transition hover:bg-blue-800 hover:pl-5">Tableau de bord</a>
+                   class="block py-2 px-3 rounded transition hover:bg-blue-800 hover:pl-5">Tableau de bord Laborantin</a>
                 <a href="{{ route('laborantin.historique') }}"
                    class="block py-2 px-3 rounded transition hover:bg-blue-800 hover:pl-5">Historique des analyses</a>
-                <a href="{{ route('laborantin.dashboard') }}#analyses"
-                   class="block py-2 px-3 rounded transition hover:bg-blue-800 hover:pl-5">Analyses à réaliser</a>
-                <!-- Ajoute d'autres actions spécifiques au laborantin ici si besoin -->
+                <a href="{{ route('laborantin.analyse.form') }}"
+                   class="block py-2 px-3 rounded transition hover:bg-blue-800 hover:pl-5">Remplir un formulaire d'analyse</a>
             @elseif($role === 'chef_service')
                 <a href="{{ route('chefservice.dashboard') }}"
                    class="block py-2 px-3 rounded transition hover:bg-blue-800 hover:pl-5">Tableau de bord</a>
