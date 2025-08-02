@@ -14,7 +14,7 @@ class LaborantinController extends Controller
     public function showAnalyseForm()
     {
         $laborantin = Auth::user();
-        $declarations = \App\Models\Declaration::all();
+        $declarations = \App\Models\Declaration::with('produits', 'client')->get();
         $produits = \App\Models\Produit::all();
         return view('laborantin.analyse-form', compact('declarations', 'produits'));
     }

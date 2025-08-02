@@ -11,9 +11,11 @@
                 @foreach($declarations as $declaration)
                     <option value="{{ $declaration->id }}"
                         data-produit="{{ $declaration->designation_produit }}"
-                        data-date-fabrication="{{ $declaration->date_fabrication }}"
-                        data-date-expiration="{{ $declaration->date_expiration }}">
-                        #{{ $declaration->id }} - {{ $declaration->designation_produit ?? $declaration->nom_declaration ?? 'Déclaration' }} ({{ $declaration->client->name ?? 'Client' }} | {{ $declaration->client->numero ?? 'N° inconnu' }})
+                        data-date-fabrication="{{ optional($declaration->produits->first())->date_fabrication ?? '' }}"
+                        data-date-expiration="{{ optional($declaration->produits->first())->date_expiration ?? '' }}">
+                        #{{ $declaration->id }} - {{ $declaration->designation_produit ?? $declaration->nom_declaration ?? 'Déclaration' }}
+                        ({{ $declaration->client->name ?? 'Client' }} | {{ $declaration->client->numero ?? 'N° inconnu' }})
+                        [Fab: {{ optional($declaration->produits->first())->date_fabrication ?? 'N/A' }} | Exp: {{ optional($declaration->produits->first())->date_expiration ?? 'N/A' }}]
                     </option>
                 @endforeach
             </select>
@@ -22,7 +24,12 @@
             <label class="block font-semibold mb-1">Produit :</label>
             <select name="designation_produit" id="produitSelect" class="border rounded p-2 w-full">
                 @foreach($produits as $produit)
-                    <option value="{{ $produit->nom_produit }}">{{ $produit->nom_produit }} ({{ $produit->categorie_produit }})</option>
+                    <option value="{{ $produit->nom_produit }}"
+                        data-date-fabrication="{{ $produit->date_fabrication }}"
+                        data-date-expiration="{{ $produit->date_expiration }}"
+                        data-declaration-id="{{ optional(optional($produit->declarations)->first())->id ?? '' }}">
+                        {{ $produit->nom_produit }} ({{ $produit->categorie_produit }})
+                    </option>
                 @endforeach
             </select>
         </div>
@@ -89,6 +96,38 @@
         // Préremplir au chargement si une déclaration est sélectionnée
         if (declarationSelect.selectedIndex > -1) {
             remplirChamps();
+        }
+    });
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const produitSelect = document.getElementById('produitSelect');
+        const dateFabricationInput = document.getElementById('dateFabricationInput');
+        const dateExpirationInput = document.getElementById('dateExpirationInput');
+        const declarationSelect = document.getElementById('declarationSelect');
+
+        function remplirChampsProduit() {
+            const selectedOption = produitSelect.options[produitSelect.selectedIndex];
+            const dateFabrication = selectedOption.getAttribute('data-date-fabrication');
+            const dateExpiration = selectedOption.getAttribute('data-date-expiration');
+            const declarationId = selectedOption.getAttribute('data-declaration-id');
+            dateFabricationInput.value = dateFabrication || '';
+            dateExpirationInput.value = dateExpiration || '';
+            // Sélectionner la déclaration associée si possible
+            if (declarationId) {
+                for (let i = 0; i < declarationSelect.options.length; i++) {
+                    if (declarationSelect.options[i].value == declarationId) {
+                        declarationSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+            console.log('Champs préremplis depuis produit:', {dateFabrication, dateExpiration, declarationId});
+        }
+        produitSelect.addEventListener('change', remplirChampsProduit);
+        // Préremplir au chargement si un produit est sélectionné
+        if (produitSelect.selectedIndex > -1) {
+            remplirChampsProduit();
         }
     });
     </script>

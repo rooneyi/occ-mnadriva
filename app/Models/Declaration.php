@@ -36,6 +36,10 @@ class Declaration extends Model
     {
         return $this->belongsToMany(Dossier::class, 'dossier_declaration', 'id_declaration', 'id_dossier');
     }
+    public function client()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
 
     // Actions métier demandées
     public function modifier($data)
