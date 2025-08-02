@@ -9,9 +9,9 @@ class Produit extends Model
     use HasFactory;
     protected $primaryKey = 'id_produit';
     protected $fillable = [
-        'nom',
+        'categorie_produit',
+        'nom_produit',
         'description',
-        // Ajoutez d'autres champs si besoin
     ];
 }
 

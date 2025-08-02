@@ -6,6 +6,7 @@ use App\Models\Laborantin;
 use App\Models\RapportAnalyse;
 use App\Models\Declaration;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class LaborantinController extends Controller
 {
@@ -44,7 +45,19 @@ class LaborantinController extends Controller
             'date_expiration' => $request->date_expiration,
             'conclusion' => $request->conclusion,
         ]);
-        return redirect()->route('laborantin.historique')->with('success', 'Rapport généré et soumis.');
+        // Génération PDF (exemple simple avec dompdf)
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('laborantin.pdf', ['rapport' => $rapport]);
+        $pdfPath = 'rapports/rapport_'.$rapport->id_rapport.'.pdf';
+        Storage::disk('public')->put($pdfPath, $pdf->output());
+        $rapport->pdf_path = $pdfPath;
+        $rapport->save();
+        // Notifier le contrôleur
+        $controleur = \App\Models\User::where('role', 'controleur')->first();
+        if ($controleur) {
+            $controleur->notify(new \App\Notifications\AnalyseSubmitted($rapport));
+        }
+        return redirect()->route('laborantin.historique')->with('success', 'Rapport généré (PDF) et soumis au contrôleur.');
     }
 
     // Historique des analyses
@@ -54,5 +67,16 @@ class LaborantinController extends Controller
         $rapports = RapportAnalyse::where('id_laborantin', $laborantin->id_laborantin)->with('declaration')->get();
         return view('laborantin.historique', compact('rapports'));
     }
-}
 
+    // Tableau de bord laborantin
+    public function dashboard()
+    {
+        $laborantin = Auth::user();
+        // Exemple : récupérer les déclarations à analyser (à adapter selon ta logique métier)
+        $analyses = Declaration::where('statut', 'en_attente')
+            ->where('id_laborantin', $laborantin->id_laborantin)
+            ->with('produit')
+            ->get();
+        return view('laborantin.dashboard', compact('analyses'));
+    }
+}

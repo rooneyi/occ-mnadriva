@@ -7,14 +7,35 @@
         <flux:header container class="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
             <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
 
-            <a href="{{ route('dashboard') }}" class="ms-2 me-5 flex items-center space-x-2 rtl:space-x-reverse lg:ms-0" wire:navigate>
-                <x-app-logo />
-            </a>
+            @php
+    $user = Auth::user();
+    $dashboardRoute = '#';
+    if ($user) {
+        switch ($user->role) {
+            case 'controleur':
+                $dashboardRoute = route('controleur.dashboard');
+                break;
+            case 'laborantin':
+                $dashboardRoute = route('laborantin.dashboard');
+                break;
+            case 'chef_service':
+                $dashboardRoute = route('chefservice.dashboard');
+                break;
+            case 'client':
+            default:
+                $dashboardRoute = route('client.dashboard');
+                break;
+        }
+    }
+@endphp
+<a href="{{ $dashboardRoute }}" class="ms-2 me-5 flex items-center space-x-2 rtl:space-x-reverse lg:ms-0" wire:navigate>
+    <x-app-logo />
+</a>
 
             <flux:navbar class="-mb-px max-lg:hidden">
-                <flux:navbar.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
-                    {{ __('Dashboard') }}
-                </flux:navbar.item>
+                <flux:navbar.item icon="layout-grid" :href="$dashboardRoute" :current="request()->url() === $dashboardRoute" wire:navigate>
+    {{ __('Dashboard') }}
+</flux:navbar.item>
             </flux:navbar>
 
             <flux:spacer />

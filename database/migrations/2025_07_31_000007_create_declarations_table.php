@@ -8,15 +8,16 @@ return new class extends Migration {
     {
         Schema::create('declarations', function (Blueprint $table) {
             $table->id('id_declaration');
-            $table->unsignedBigInteger('id_client');
-            $table->string('produit'); // ou relation avec produits via pivot
+            $table->unsignedBigInteger('user_id');
+            $table->string('designation_produit');
+            $table->integer('quantiter');
             $table->string('unite');
-            $table->string('numero_import');
+            $table->string('numero_impot');
             $table->date('date_soumission');
-            $table->string('document')->nullable(); // chemin du document joint
-            $table->string('statut')->default('en_attente'); // pour notifications
+            $table->string('fichier')->nullable();
+            $table->string('statut')->default('en_attente');
             $table->timestamps();
-            $table->foreign('id_client')->references('id_client')->on('clients')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

@@ -9,17 +9,19 @@ class Declaration extends Model
     use HasFactory;
     protected $primaryKey = 'id_declaration';
     protected $fillable = [
-        'id_client',
-        'produit',
+        'user_id',
+        'designation_produit',
+        'quantiter',
         'unite',
-        'numero_import',
+        'numero_impot',
         'date_soumission',
-        'document',
+        'fichier',
         'statut',
     ];
-    public function client()
+    // Si besoin d'un lien avec l'utilisateur (client)
+    public function user()
     {
-        return $this->belongsTo(Client::class, 'id_client', 'id_client');
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
     public function produits()
     {
@@ -34,23 +36,22 @@ class Declaration extends Model
         return $this->belongsToMany(Dossier::class, 'dossier_declaration', 'id_declaration', 'id_dossier');
     }
 
-    // Fonctionnalités Client
-    public function joindreDocument($documentPath)
+    // Actions métier demandées
+    public function modifier($data)
     {
-        $this->document = $documentPath;
+        $this->update($data);
+    }
+
+    public function joindreFichier($filePath)
+    {
+        $this->fichier = $filePath;
         $this->save();
     }
 
-    public function recevoirNotification($message)
+    public function envoyer()
     {
-        // Ici, on pourrait utiliser le système de notifications Laravel
-        // Notification::send($this->client, new StatutDossierNotification($message));
-    }
-
-    public function telechargerRapport()
-    {
-        // Retourne le(s) rapport(s) lié(s) à la déclaration
-        return $this->rapports;
+        $this->statut = 'envoyée';
+        $this->save();
     }
 
     // Fonctionnalités Contrôleur (à implémenter côté Controleur.php)

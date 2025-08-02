@@ -9,6 +9,12 @@ use Illuminate\Support\Facades\Auth;
 
 class ControleurController extends Controller
 {
+    // Dashboard Contrôleur
+    public function dashboard()
+    {
+        return view('controleur.dashboard');
+    }
+
     // Liste des demandes assignées au contrôleur
     public function demandesAssignees()
     {
@@ -59,5 +65,47 @@ class ControleurController extends Controller
         $produit->save();
         return back()->with('success', 'Produit rejeté.');
     }
+    
+    // Scan/saisie des dates et calcul validité produit
+    public function scanProduit(Request $request, $id_produit)
+    {
+        $produit = Produit::findOrFail($id_produit);
+        $validite = null;
+        if ($request->isMethod('post')) {
+            $request->validate([
+                'date_fabrication' => 'required|date',
+                'date_expiration' => 'required|date|after:date_fabrication',
+            ]);
+            $produit->date_fabrication = $request->date_fabrication;
+            $produit->date_expiration = $request->date_expiration;
+            // Calcul validité
+            $diff = now()->diffInMonths(
+                \Carbon\Carbon::parse($request->date_expiration),
+                false // négatif si déjà expiré
+            );
+            if ($diff > 3) {
+                $produit->statut = 'passable';
+                $validite = [
+                    'passable' => true,
+                    'message' => 'Produit passable (expiration dans ' . $diff . ' mois)'
+                ];
+            } else {
+                $produit->statut = 'non passable';
+                $validite = [
+                    'passable' => false,
+                    'message' => 'Produit non passable (expiration dans ' . $diff . ' mois)'
+                ];
+            }
+            $produit->save();
+        } elseif ($produit->date_expiration && $produit->date_fabrication) {
+            $diff = now()->diffInMonths(\Carbon\Carbon::parse($produit->date_expiration), false);
+            $validite = [
+                'passable' => $produit->statut === 'passable',
+                'message' => ($produit->statut === 'passable' ? 'Produit passable' : 'Produit non passable') . ' (expiration dans ' . $diff . ' mois)'
+            ];
+        }
+        return view('controleur.produit_show', compact('produit', 'validite'));
+    }
 }
+
 

@@ -25,9 +25,7 @@
       <div class="hidden lg:flex lg:gap-x-12">
         <a href="/" class="text-base font-semibold text-blue-900 hover:text-yellow-500 transition">Accueil</a>
         <a href="{{ route('client.register') }}" class="text-base font-semibold text-blue-900 hover:text-yellow-500 transition">Créer un compte client</a>
-        <a href="{{ route('client.login') }}" class="text-base font-semibold text-yellow-500 hover:text-blue-900 transition">Connexion client</a>
-        <span class="text-base font-semibold text-gray-400 cursor-not-allowed">Espace Contrôleur</span>
-        <span class="text-base font-semibold text-gray-400 cursor-not-allowed">Espace Laboratoire</span>
+        <a href="{{ route('login') }}" class="text-base font-semibold text-white bg-blue-900 px-4 py-2 rounded shadow hover:bg-yellow-500 hover:text-blue-900 transition">Connexion</a>
       </div>
       <div class="flex lg:hidden">
         <!-- Mobile menu button (optionnel) -->
@@ -52,7 +50,7 @@
         </p>
         <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-x-6">
           <a href="{{ route('client.register') }}" class="rounded-md bg-yellow-100 px-6 py-3 text-base font-semibold text-blue-900 shadow hover:bg-yellow-200 transition mb-2 sm:mb-0">Créer un compte client</a>
-          <a href="{{ route('client.login') }}" class="rounded-md border border-blue-900 px-6 py-3 text-base font-semibold text-blue-900 hover:bg-blue-900 hover:text-white transition">Connexion client</a>
+          <a href="{{ route('login') }}" class="rounded-md border border-blue-900 px-6 py-3 text-base font-semibold text-blue-900 hover:bg-blue-900 hover:text-white transition">Connexion client</a>
         </div>
       </div>
     </div>
