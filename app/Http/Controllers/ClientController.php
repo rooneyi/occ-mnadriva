@@ -64,12 +64,15 @@ class ClientController extends Controller
         }
 
         // Créer la déclaration
+        $controleur = \App\Models\User::where('role', 'controleur')->first();
         $declaration = Declaration::create([
             'id_client'       => $client->id_client,
             'unite'           => $request->unite,
             'numero_import'   => $request->numero_import,
             'date_soumission' => now(),
             'statut'          => 'en_attente',
+            'user_id'         => Auth::id(),
+            'user_id_controleur' => $controleur ? $controleur->id : null,
         ]);
 
         // Lier les produits
