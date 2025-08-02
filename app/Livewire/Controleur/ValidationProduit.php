@@ -10,6 +10,8 @@ class ValidationProduit extends Component
     public $produitId;
     public $statut;
     public $commentaire;
+    public $moisRestants;
+    public $statutAuto;
 
     public function valider()
     {
@@ -31,10 +33,37 @@ class ValidationProduit extends Component
         }
     }
 
-    public function render()
+    public function updatedProduitId()
     {
         $produit = Produit::find($this->produitId);
-        return view('livewire.controleur.validation-produit', compact('produit'));
+        if ($produit) {
+            $this->calculerStatut($produit);
+        } else {
+            $this->moisRestants = null;
+            $this->statutAuto = null;
+        }
+    }
+
+    public function calculerStatut($produit)
+    {
+        if ($produit->date_expiration) {
+            $dateExp = \Carbon\Carbon::parse($produit->date_expiration);
+            $dateNow = \Carbon\Carbon::now();
+            $this->moisRestants = $dateNow->diffInMonths($dateExp, false);
+            $this->statutAuto = $this->moisRestants > 3 ? 'passable' : 'non passable';
+        } else {
+            $this->moisRestants = null;
+            $this->statutAuto = null;
+        }
+    }
+
+    public function render()
+    {
+        $produit = $this->produitId ? Produit::find($this->produitId) : null;
+        return view('livewire.controleur.validation-produit', [
+            'produit' => $produit,
+            'moisRestants' => $this->moisRestants,
+            'statutAuto' => $this->statutAuto,
+        ]);
     }
 }
-

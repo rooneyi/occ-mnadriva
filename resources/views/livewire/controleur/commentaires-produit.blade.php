@@ -1,3 +1,6 @@
+@extends('layouts.app')
+
+@section('content')
 <div>
     <h2 class="text-xl font-bold mb-4">Commentaires sur le produit</h2>
     <form wire:submit.prevent="ajouterCommentaire" class="mb-4">
@@ -23,3 +26,4 @@
         @endforelse
     </ul>
 </div>
+@endsection

@@ -1,10 +1,32 @@
+@extends('layouts.app')
+
+@section('content')
 <div>
     <h2 class="text-xl font-bold mb-4">Valider ou rejeter un produit</h2>
-    @if($produit)
+    <div class="mb-4">
+        <label for="produitSelect" class="block font-semibold mb-1">Sélectionner un produit :</label>
+        <select id="produitSelect" wire:model="produitId" class="border rounded p-2 w-full mb-2">
+            <option value="">-- Choisir un produit --</option>
+            @foreach(App\Models\Produit::all() as $p)
+                <option value="{{ $p->id_produit }}">{{ $p->nom_produit }} ({{ $p->id_produit }})</option>
+            @endforeach
+        </select>
+    </div>
+    @php
+        $produit = null;
+        if($p->id_produit) {
+            $produit = App\Models\Produit::find($produitId);
+        }
+    @endphp
+    @if($produitId && $produit)
         <div class="mb-4">
-            <strong>Nom :</strong> {{ $produit->nom }}<br>
+            <strong>Nom :</strong> {{ $produit->nom_produit }}<br>
             <strong>Description :</strong> {{ $produit->description }}<br>
-            <strong>Statut actuel :</strong> {{ $produit->statut }}
+            <strong>Date fabrication :</strong> {{ $produit->date_fabrication }}<br>
+            <strong>Date expiration :</strong> {{ $produit->date_expiration }}<br>
+            <strong>Mois restants avant expiration :</strong> {{ $moisRestants ?? 'N/A' }}<br>
+            <strong>Statut automatique :</strong> <span class="font-bold {{ $statutAuto == 'passable' ? 'text-green-600' : 'text-red-600' }}">{{ $statutAuto ?? 'N/A' }}</span><br>
+            <strong>Statut actuel :</strong> {{ $produit->statut ?? 'N/A' }}
         </div>
         <form wire:submit.prevent="valider" class="inline-block mr-2">
             <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Valider</button>
@@ -22,4 +44,4 @@
         <div class="text-gray-500">Aucun produit sélectionné.</div>
     @endif
 </div>
-
+@endsection

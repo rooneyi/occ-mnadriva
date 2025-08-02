@@ -11,6 +11,15 @@ class PhotosProduit extends Component
 
     public $produitId;
     public $photos = [];
+    public $produits;
+
+    public function mount()
+    {
+        $this->produits = Produit::all();
+        if (!$this->produitId && $this->produits->count()) {
+            $this->produitId = $this->produits->first()->id_produit;
+        }
+    }
 
     public function save()
     {
@@ -22,7 +31,9 @@ class PhotosProduit extends Component
 
     public function render()
     {
-        return view('livewire.controleur.photos-produit');
+        return view('livewire.controleur.photos-produit', [
+            'produits' => $this->produits,
+            'produitId' => $this->produitId,
+        ]);
     }
 }
-
