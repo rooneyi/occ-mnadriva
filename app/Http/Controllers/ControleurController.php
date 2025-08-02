@@ -27,14 +27,24 @@ class ControleurController extends Controller
     public function demandesAssignees()
     {
         $controleur = Auth::user();
-        $demandes = Declaration::where('id_controleur', $controleur->id_controleur)->with('produits')->get();
+        $demandes = Declaration::where('user_id_controleur', $controleur->id)->with('produits')->get();
         return view('controleur.demandes', compact('demandes'));
     }
 
     // Notifications du contrôleur
     public function notifications()
     {
-        $notifications = Auth::user()->notifications()->latest()->get();
+        $user = Auth::user();
+        // Assignation automatique des demandes depuis les notifications
+        $notifications = $user->notifications()->where('type', 'App\\Notifications\\DeclarationSubmitted')->get();
+        foreach ($notifications as $notif) {
+            $data = $notif->data;
+            if (isset($data['declaration_id'])) {
+                Declaration::where('id_declaration', $data['declaration_id'])
+                    ->update(['user_id_controleur' => $user->id]);
+            }
+        }
+        $notifications = $user->notifications()->latest()->get();
         return view('controleur.notifications', compact('notifications'));
     }
 
@@ -162,5 +172,20 @@ class ControleurController extends Controller
             ];
         }
         return view('controleur.produit_show', compact('produit', 'validite'));
+    }
+
+    // Assigner automatiquement les demandes depuis les notifications
+    public function assignerDemandesDepuisNotifications()
+    {
+        $user = Auth::user();
+        $notifications = $user->notifications()->where('type', 'App\Notifications\DeclarationSubmitted')->get();
+        foreach ($notifications as $notif) {
+            $data = $notif->data;
+            if (isset($data['declaration_id'])) {
+                Declaration::where('id_declaration', $data['declaration_id'])
+                    ->update(['user_id_controleur' => $user->id]);
+            }
+        }
+        return redirect()->back()->with('success', 'Toutes les demandes des notifications ont été assignées à ce contrôleur.');
     }
 }

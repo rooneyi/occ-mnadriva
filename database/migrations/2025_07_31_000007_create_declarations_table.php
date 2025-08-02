@@ -18,6 +18,8 @@ return new class extends Migration {
             $table->string('statut')->default('en_attente');
             $table->timestamps();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->unsignedBigInteger('user_id_controleur')->nullable();
+            $table->foreign('user_id_controleur')->references('id')->on('users')->onDelete('set null');
         });
     }
 
@@ -26,4 +28,3 @@ return new class extends Migration {
         Schema::dropIfExists('declarations');
     }
 };
-

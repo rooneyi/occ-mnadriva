@@ -20,17 +20,17 @@
             <tbody>
                 @foreach($demandes as $demande)
                     <tr>
-                        <td>{{ $demande->id }}</td>
+                        <td>{{ $demande->id_declaration }}</td>
                         <td>
                             @foreach($demande->produits as $produit)
                                 {{ $produit->nom_produit }}<br>
                             @endforeach
                         </td>
-                        <td>{{ $demande->client->name ?? '-' }}</td>
+                        <td>{{ $demande->user->name ?? '-' }}</td>
                         <td>{{ $demande->created_at->format('d/m/Y') }}</td>
                         <td>{{ $demande->statut }}</td>
                         <td>
-                            <a href="#" class="btn btn-primary btn-sm disabled">Voir</a>
+                            <a href="{{ route('controleur.demande.show', $demande->id_declaration) }}" class="btn btn-primary btn-sm">Voir</a>
                         </td>
                     </tr>
                 @endforeach

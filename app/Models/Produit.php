@@ -15,6 +15,6 @@ class Produit extends Model
         'commentaire',
         'date_fabrication',
         'date_expiration',
+        'statut',
     ];
 }
-

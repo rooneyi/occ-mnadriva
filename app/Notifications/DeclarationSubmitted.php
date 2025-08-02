@@ -46,19 +46,11 @@ class DeclarationSubmitted extends Notification implements ShouldQueue
 
     public function toArray($notifiable)
     {
-        $isControleur = $notifiable->role === 'controleur';
-        if ($isControleur) {
-            return [
-                'title' => 'Nouvelle déclaration à traiter',
-                'message' => 'Un client a soumis une nouvelle déclaration pour le produit ' . $this->declaration->designation_produit . ' (quantité : ' . $this->declaration->quantiter . ')',
-                'declaration_id' => $this->declaration->id,
-            ];
-        } else {
-            return [
-                'title' => 'Déclaration soumise',
-                'message' => 'Votre déclaration pour le produit ' . $this->declaration->designation_produit . ' (quantité : ' . $this->declaration->quantiter . ') a bien été transmise au contrôleur.',
-                'declaration_id' => $this->declaration->id,
-            ];
-        }
+        return [
+            'declaration_id' => $this->declaration->id_declaration,
+            'designation_produit' => $this->declaration->designation_produit,
+            'quantiter' => $this->declaration->quantiter,
+            'statut' => $this->declaration->statut,
+        ];
     }
 }

@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up()
     {
+        schema::dropIfExists('produits');
         Schema::create('produits', function (Blueprint $table) {
             $table->id('id_produit');
             $table->string('categorie_produit');

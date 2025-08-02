@@ -8,14 +8,20 @@ use Illuminate\Support\Facades\Auth;
 class ValidationProduit extends Component
 {
     public $produitId;
-    public $statut;
     public $commentaire;
     public $moisRestants;
     public $statutAuto;
 
+    public function mount()
+    {
+        $this->produitId = null;
+        $this->moisRestants = null;
+        $this->statutAuto = null;
+    }
+
     public function valider()
     {
-        $produit = Produit::find($this->produitId);
+        $produit = Produit::where('id_produit', $this->produitId)->first();
         if ($produit) {
             $produit->statut = 'valide';
             $produit->save();
@@ -25,7 +31,7 @@ class ValidationProduit extends Component
 
     public function rejeter()
     {
-        $produit = Produit::find($this->produitId);
+        $produit = Produit::where('id_produit', $this->produitId)->first();
         if ($produit) {
             $produit->statut = 'rejeté';
             $produit->save();
@@ -35,7 +41,7 @@ class ValidationProduit extends Component
 
     public function updatedProduitId()
     {
-        $produit = Produit::find($this->produitId);
+        $produit = Produit::where('id_produit', $this->produitId)->first();
         if ($produit) {
             $this->calculerStatut($produit);
         } else {
@@ -46,10 +52,10 @@ class ValidationProduit extends Component
 
     public function calculerStatut($produit)
     {
-        if ($produit->date_expiration) {
+        if ($produit->date_expiration && $produit->date_fabrication) {
+            $dateFab = \Carbon\Carbon::parse($produit->date_fabrication);
             $dateExp = \Carbon\Carbon::parse($produit->date_expiration);
-            $dateNow = \Carbon\Carbon::now();
-            $this->moisRestants = $dateNow->diffInMonths($dateExp, false);
+            $this->moisRestants = $dateFab->diffInMonths($dateExp, false);
             $this->statutAuto = $this->moisRestants > 3 ? 'passable' : 'non passable';
         } else {
             $this->moisRestants = null;
@@ -59,7 +65,19 @@ class ValidationProduit extends Component
 
     public function render()
     {
-        $produit = $this->produitId ? Produit::find($this->produitId) : null;
+        $produit = null;
+        if ($this->produitId) {
+            $produit = Produit::where('id_produit', $this->produitId)->first();
+            if ($produit) {
+                $this->calculerStatut($produit);
+            } else {
+                $this->moisRestants = null;
+                $this->statutAuto = null;
+            }
+        } else {
+            $this->moisRestants = null;
+            $this->statutAuto = null;
+        }
         return view('livewire.controleur.validation-produit', [
             'produit' => $produit,
             'moisRestants' => $this->moisRestants,

@@ -34,5 +34,11 @@
             </div>
         @endif
     </div>
+    {{-- Intégration du composant Livewire pour les commentaires --}}
+    @if($produit)
+        <div class="mb-8">
+            @livewire('controleur.commentaires-produit', ['produitId' => $produit->id_produit])
+        </div>
+    @endif
 </div>
 @endsection

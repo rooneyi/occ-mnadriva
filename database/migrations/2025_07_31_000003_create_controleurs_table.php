@@ -6,13 +6,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('controleurs', function (Blueprint $table) {
-            $table->id('id_controleur');
-            $table->unsignedBigInteger('id_utilisateur');
-            $table->string('grade');
-            $table->timestamps();
-            $table->foreign('id_utilisateur')->references('id_utilisateur')->on('users')->onDelete('cascade');
-        });
+        Schema::dropIfExists('controleurs');
     }
 
     public function down(): void
@@ -20,4 +14,3 @@ return new class extends Migration {
         Schema::dropIfExists('controleurs');
     }
 };
-
