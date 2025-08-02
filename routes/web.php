@@ -31,7 +31,7 @@ Route::get('/client/notifications', function() {
 })->name('client.notifications');
 
 // Dashboard Contrôleur
-Route::middleware(['auth', 'role:controleur'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/controleur/dashboard', [App\Http\Controllers\ControleurController::class, 'dashboard'])->name('controleur.dashboard');
     Route::match(['get', 'post'], 'controleur/produit/{id_produit}/scan', [App\Http\Controllers\ControleurController::class, 'scanProduit'])->name('controleur.produit.scan');
     Route::get('/controleur/notifications', [App\Http\Controllers\ControleurController::class, 'notifications'])->name('controleur.notifications');

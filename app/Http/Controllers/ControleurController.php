@@ -12,7 +12,11 @@ class ControleurController extends Controller
     // Dashboard Contrôleur
     public function dashboard()
     {
-        return view('controleur.dashboard');
+        $controleur = Auth::user();
+        $demandes = \App\Models\Declaration::where('id_controleur', $controleur->id_controleur)
+            ->with('produits')
+            ->get();
+        return view('controleur.dashboard', compact('demandes'));
     }
 
     // Liste des demandes assignées au contrôleur
@@ -65,7 +69,7 @@ class ControleurController extends Controller
         $produit->save();
         return back()->with('success', 'Produit rejeté.');
     }
-    
+
     // Scan/saisie des dates et calcul validité produit
     public function scanProduit(Request $request, $id_produit)
     {
@@ -107,5 +111,3 @@ class ControleurController extends Controller
         return view('controleur.produit_show', compact('produit', 'validite'));
     }
 }
-
-

@@ -25,9 +25,6 @@
                 <input id="remember" name="remember" type="checkbox" class="h-4 w-4 text-blue-900 focus:ring-yellow-500 border-blue-300 rounded">
                 <label for="remember" class="ml-2 block text-sm text-blue-900">Se souvenir de moi</label>
             </div>
-            <div class="text-sm">
-                <a href="#" class="font-medium text-yellow-600 hover:text-blue-900">Mot de passe oublié ?</a>
-            </div>
         </div>
         <div>
             <label for="role" class="block text-sm font-medium text-blue-900">Rôle</label>

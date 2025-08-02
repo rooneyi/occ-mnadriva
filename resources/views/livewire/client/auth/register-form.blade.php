@@ -18,7 +18,7 @@
         <button type="submit" class="w-full bg-blue-800 hover:bg-blue-900 text-white font-bold py-3 rounded-lg text-lg transition">Créer le compte</button>
 
         <div class="text-center text-sm text-gray-600 mt-4">
-            Déjà un compte ? <a href="{{ route('client.login') }}" class="text-blue-600 hover:underline">Se Connecter</a>
+            Déjà un compte ? <a href="{{ route('login') }}" class="text-blue-600 hover:underline">Se Connecter</a>
         </div>
     </form>
 </div>
