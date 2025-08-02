@@ -27,6 +27,42 @@ class ControleurController extends Controller
         return view('controleur.demandes', compact('demandes'));
     }
 
+    // Notifications du contrôleur
+    public function notifications()
+    {
+        $notifications = Auth::user()->notifications()->latest()->get();
+        return view('controleur.notifications', compact('notifications'));
+    }
+
+    // Ajouter un produit à une demande
+    public function addProduit($demandeId)
+    {
+        $demande = Declaration::findOrFail($demandeId);
+        return view('controleur.produit_add', compact('demande'));
+    }
+
+    // Enregistrer le produit ajouté
+    public function storeProduit(Request $request, $demandeId)
+    {
+        $request->validate([
+            'designation' => 'required',
+            'quantite' => 'required|numeric',
+        ]);
+        $produit = new Produit();
+        $produit->designation = $request->designation;
+        $produit->quantite = $request->quantite;
+        $produit->id_declaration = $demandeId;
+        $produit->save();
+        return redirect()->route('controleur.demande.show', $demandeId)->with('success', 'Produit ajouté avec succès.');
+    }
+
+    // Page de détail d'une demande (actions sur produits)
+    public function showDemande($demandeId)
+    {
+        $demande = Declaration::with('produits')->findOrFail($demandeId);
+        return view('controleur.demande_show', compact('demande'));
+    }
+
     // Prendre une photo d'un produit (upload)
     public function prendrePhoto(Request $request, $produitId)
     {

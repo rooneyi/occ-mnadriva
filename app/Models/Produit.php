@@ -12,6 +12,9 @@ class Produit extends Model
         'categorie_produit',
         'nom_produit',
         'description',
+        'commentaire',
+        'date_fabrication',
+        'date_expiration',
     ];
 }
 

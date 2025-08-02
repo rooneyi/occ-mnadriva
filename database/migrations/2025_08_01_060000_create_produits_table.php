@@ -10,6 +10,9 @@ return new class extends Migration {
                 $table->id('id_produit');
                 $table->string('categorie_produit');
                 $table->string('nom_produit');
+                $table->text('description')->nullable();
+                $table->date('date_fabrication')->nullable();
+                $table->date('date_expiration')->nullable();
                 $table->timestamps();
             });
         }

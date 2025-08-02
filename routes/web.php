@@ -7,9 +7,6 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth'])
-    ->name('dashboard');
 
 // Authentification et inscription client (Livewire)
 Route::get('/client/register', function() {
@@ -18,7 +15,7 @@ Route::get('/client/register', function() {
 
 
 // Tableau de bord client
-Route::get('/client/dashboard', [App\Http\Controllers\ClientController::class, 'dashboard'])->name('client.dashboard');
+Route::view('/client/dashboard', 'dashboard')->name('client.dashboard');
 
 // Formulaire de déclaration (Livewire)
 Route::get('/client/declaration', function() {
@@ -33,10 +30,15 @@ Route::get('/client/notifications', function() {
 // Dashboard Contrôleur
 Route::middleware(['auth'])->group(function () {
     Route::get('/controleur/dashboard', [App\Http\Controllers\ControleurController::class, 'dashboard'])->name('controleur.dashboard');
-    Route::match(['get', 'post'], 'controleur/produit/{id_produit}/scan', [App\Http\Controllers\ControleurController::class, 'scanProduit'])->name('controleur.produit.scan');
-    Route::get('/controleur/notifications', [App\Http\Controllers\ControleurController::class, 'notifications'])->name('controleur.notifications');
-});
+    Route::view('/controleur/produits/create', 'controleur.produits.create')->name('controleur.produits.create');
+    Route::get('/controleur/notification', [App\Http\Controllers\ControleurController::class, 'notifications'])->name('controleur.notifications');
 
+    Route::get('/controleur/produits/photos', \App\Livewire\Controleur\PhotosProduit::class)->name('controleur.produits.photos');
+    Route::get('/controleur/produits/commentaires', \App\Livewire\Controleur\CommentairesProduit::class)->name('controleur.produits.commentaires');
+    Route::get('/controleur/produits/validation', \App\Livewire\Controleur\ValidationProduit::class)->name('controleur.produits.validation');
+    Route::get('/controleur/demandes', \App\Livewire\Controleur\Demandes::class)->name('controleur.demandes');
+
+});
 // Login universel multi-rôles
 Route::get('/login', [App\Http\Controllers\UniversalLoginController::class, 'showForm'])->name('login');
 Route::post('/login', [App\Http\Controllers\UniversalLoginController::class, 'login'])->name('login.submit');

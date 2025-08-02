@@ -1,13 +1,14 @@
 <?php
-namespace App\Livewire;
+namespace App\Livewire\Controleur;
 
-use App\Models\Produit;
 use Livewire\Component;
+use App\Models\Produit;
 
-class ProduitCrud extends Component
+class AjouterProduit extends Component
 {
     public $categorie_produit;
     public $nom_produit;
+    public $description;
     public $produits;
 
     protected $rules = [
@@ -37,15 +38,9 @@ class ProduitCrud extends Component
         session()->flash('success', 'Produit ajouté avec succès.');
     }
 
-    public function supprimer($id)
-    {
-        Produit::where('id_produit', $id)->delete();
-        $this->refreshProduits();
-        session()->flash('success', 'Produit supprimé.');
-    }
-
     public function render()
     {
-        return view('livewire.produit-crud');
+        return view('livewire.controleur.ajouter-produit');
     }
 }
+
