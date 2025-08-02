@@ -1,6 +1,15 @@
 <div>
     <h2 class="text-xl font-bold mb-4">Valider ou rejeter un produit</h2>
     <div class="mb-4">
+        @if(session('success'))
+            <div class="text-green-600 bg-green-200 border rounded p-2 mt-2">{{ session('success') }}</div>
+        @endif
+        @if(session('error'))
+            <div class="text-red-600 bg-red-200 border rounded p-2 mt-2">{{ session('error') }}</div>
+        @endif
+        @if(session('commentaire_success'))
+            <div class="text-green-600 bg-green-200 border rounded p-2 mb-2">{{ session('commentaire_success') }}</div>
+        @endif
         <label for="produitSelect" class="block font-semibold mb-1">Sélectionner un produit :</label>
         <select id="produitSelect" wire:model.lazy="produitId" class="border rounded p-2 w-full mb-2">
             <option value="">-- Choisir un produit --</option>
@@ -20,6 +29,7 @@
             <strong>Statut actuel :</strong> {{ $produit->statut ?? 'N/A' }}
         </div>
         <form wire:submit.prevent="valider" class="inline-block mr-2">
+
             <button type="submit"
                 class="px-4 py-2 rounded text-white @if(empty($produit->date_fabrication) || empty($produit->date_expiration) || $statutAuto !== 'passable') bg-gray-400 cursor-not-allowed @else bg-green-600 @endif"
                 @if(empty($produit->date_fabrication) || empty($produit->date_expiration) || $statutAuto !== 'passable') disabled @endif>
@@ -29,12 +39,8 @@
         <form wire:submit.prevent="rejeter" class="inline-block">
             <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded">Rejeter</button>
         </form>
-        @if(session('success'))
-            <div class="text-green-600 mt-2">{{ session('success') }}</div>
-        @endif
-        @if(session('error'))
-            <div class="text-red-600 mt-2">{{ session('error') }}</div>
-        @endif
+
+
     @else
         <div class="text-gray-500">Aucun produit sélectionné.</div>
     @endif
