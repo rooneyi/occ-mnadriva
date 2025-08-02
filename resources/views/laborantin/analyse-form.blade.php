@@ -3,23 +3,22 @@
 @section('content')
 <div class="container mx-auto py-8">
     <h1 class="text-2xl font-bold mb-6">Formulaire d'analyse laboratoire</h1>
+    @if(session('success'))
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if($errors->any())
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <ul class="list-disc pl-5">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
     <form method="POST" action="{{ route('laborantin.rapport.store') }}">
         @csrf
-        <div class="mb-4">
-            <label class="block font-semibold mb-1">Déclaration :</label>
-            <select name="id_declaration" id="declarationSelect" class="border rounded p-2 w-full">
-                @foreach($declarations as $declaration)
-                    <option value="{{ $declaration->id }}"
-                        data-produit="{{ $declaration->designation_produit }}"
-                        data-date-fabrication="{{ optional($declaration->produits->first())->date_fabrication ?? '' }}"
-                        data-date-expiration="{{ optional($declaration->produits->first())->date_expiration ?? '' }}">
-                        #{{ $declaration->id }} - {{ $declaration->designation_produit ?? $declaration->nom_declaration ?? 'Déclaration' }}
-                        ({{ $declaration->client->name ?? 'Client' }} | {{ $declaration->client->numero ?? 'N° inconnu' }})
-                        [Fab: {{ optional($declaration->produits->first())->date_fabrication ?? 'N/A' }} | Exp: {{ optional($declaration->produits->first())->date_expiration ?? 'N/A' }}]
-                    </option>
-                @endforeach
-            </select>
-        </div>
         <div class="mb-4">
             <label class="block font-semibold mb-1">Produit :</label>
             <select name="designation_produit" id="produitSelect" class="border rounded p-2 w-full">
@@ -36,6 +35,10 @@
         <div class="mb-4">
             <label class="block font-semibold mb-1">Quantité :</label>
             <input type="number" name="quantite" class="border rounded p-2 w-full" required>
+        </div>
+        <div class="mb-4">
+            <label class="block font-semibold mb-1">Code lab :</label>
+            <input type="text" name="code_lab" class="border rounded p-2 w-full" required>
         </div>
         <div class="mb-4">
             <label class="block font-semibold mb-1">Méthode d'essai :</label>
@@ -66,68 +69,23 @@
     @push('scripts')
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const declarationSelect = document.getElementById('declarationSelect');
         const produitSelect = document.getElementById('produitSelect');
         const dateFabricationInput = document.getElementById('dateFabricationInput');
         const dateExpirationInput = document.getElementById('dateExpirationInput');
 
         function remplirChamps() {
-            const selectedOption = declarationSelect.options[declarationSelect.selectedIndex];
-            const produit = selectedOption.getAttribute('data-produit');
-            const dateFabrication = selectedOption.getAttribute('data-date-fabrication');
-            const dateExpiration = selectedOption.getAttribute('data-date-expiration');
-            let found = false;
-            for (let i = 0; i < produitSelect.options.length; i++) {
-                if (produitSelect.options[i].value.trim().toLowerCase() === (produit ? produit.trim().toLowerCase() : '')) {
-                    produitSelect.selectedIndex = i;
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                produitSelect.selectedIndex = 0;
-            }
-            dateFabricationInput.value = dateFabrication || '';
-            dateExpirationInput.value = dateExpiration || '';
-            console.log('Champs préremplis:', {produit, dateFabrication, dateExpiration});
-        }
-
-        declarationSelect.addEventListener('change', remplirChamps);
-        // Préremplir au chargement si une déclaration est sélectionnée
-        if (declarationSelect.selectedIndex > -1) {
-            remplirChamps();
-        }
-    });
-    </script>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const produitSelect = document.getElementById('produitSelect');
-        const dateFabricationInput = document.getElementById('dateFabricationInput');
-        const dateExpirationInput = document.getElementById('dateExpirationInput');
-        const declarationSelect = document.getElementById('declarationSelect');
-
-        function remplirChampsProduit() {
             const selectedOption = produitSelect.options[produitSelect.selectedIndex];
             const dateFabrication = selectedOption.getAttribute('data-date-fabrication');
             const dateExpiration = selectedOption.getAttribute('data-date-expiration');
-            const declarationId = selectedOption.getAttribute('data-declaration-id');
             dateFabricationInput.value = dateFabrication || '';
             dateExpirationInput.value = dateExpiration || '';
-            // Sélectionner la déclaration associée si possible
-            if (declarationId) {
-                for (let i = 0; i < declarationSelect.options.length; i++) {
-                    if (declarationSelect.options[i].value == declarationId) {
-                        declarationSelect.selectedIndex = i;
-                        break;
-                    }
-                }
-            }
-            console.log('Champs préremplis depuis produit:', {dateFabrication, dateExpiration, declarationId});
+            console.log('Champs préremplis:', {dateFabrication, dateExpiration});
         }
-        produitSelect.addEventListener('change', remplirChampsProduit);
+
+        produitSelect.addEventListener('change', remplirChamps);
         // Préremplir au chargement si un produit est sélectionné
         if (produitSelect.selectedIndex > -1) {
-            remplirChampsProduit();
+            remplirChamps();
         }
     });
     </script>

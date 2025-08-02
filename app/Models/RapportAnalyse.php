@@ -11,7 +11,6 @@ class RapportAnalyse extends Model
     protected $primaryKey = 'id_rapport';
     protected $fillable = [
         'id_laborantin',
-        'id_declaration',
         'code_lab',
         'designation_produit',
         'quantite',
@@ -22,6 +21,7 @@ class RapportAnalyse extends Model
         'date_expiration',
         'conclusion',
     ];
+    // Suppression du cast id_declaration, le champ n'est plus utilisé
     public function laborantin()
     {
         return $this->belongsTo(Laborantin::class, 'id_laborantin', 'id_laborantin');
@@ -35,4 +35,3 @@ class RapportAnalyse extends Model
         return $this->belongsToMany(Dossier::class, 'dossier_rapport_analyse', 'id_rapport', 'id_dossier');
     }
 }
-

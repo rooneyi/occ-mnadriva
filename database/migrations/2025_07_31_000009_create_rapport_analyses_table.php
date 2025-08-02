@@ -9,8 +9,7 @@ return new class extends Migration {
         Schema::create('rapport_analyses', function (Blueprint $table) {
             $table->id('id_rapport');
             $table->unsignedBigInteger('id_laborantin');
-            $table->unsignedBigInteger('id_declaration');
-            $table->string('code_lab');
+            $table->string('code_lab'); // code du laboratoire ou code d'analyse
             $table->string('designation_produit');
             $table->float('quantite');
             $table->string('methode_essai');
@@ -20,8 +19,7 @@ return new class extends Migration {
             $table->date('date_expiration');
             $table->string('conclusion');
             $table->timestamps();
-            $table->foreign('id_laborantin')->references('id_laborantin')->on('laborantins')->onDelete('cascade');
-            $table->foreign('id_declaration')->references('id_declaration')->on('declarations')->onDelete('cascade');
+            $table->foreign('id_laborantin')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
@@ -30,4 +28,3 @@ return new class extends Migration {
         Schema::dropIfExists('rapport_analyses');
     }
 };
-

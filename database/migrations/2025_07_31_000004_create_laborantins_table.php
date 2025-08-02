@@ -6,7 +6,13 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::dropIfExists('laborantins');
+        Schema::create('laborantins', function (Blueprint $table) {
+            $table->id('id_laborantin');
+            $table->string('nom')->nullable();
+            $table->string('email')->nullable();
+            $table->string('telephone')->nullable();
+            $table->timestamps();
+        });
     }
     public function down(): void
     {

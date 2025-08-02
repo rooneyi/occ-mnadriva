@@ -23,7 +23,6 @@ class LaborantinController extends Controller
     public function storeRapport(Request $request)
     {
         $request->validate([
-            'id_declaration' => 'required|integer',
             'designation_produit' => 'required|string',
             'quantite' => 'required|numeric',
             'methode_essai' => 'required|string',
@@ -35,8 +34,8 @@ class LaborantinController extends Controller
         ]);
         $laborantin = Auth::user();
         $rapport = \App\Models\RapportAnalyse::create([
-            'id_laborantin' => $laborantin->id_laborantin,
-            'id_declaration' => $request->id_declaration,
+            'id_laborantin' => Auth::user()->id, // Utilise l'id de l'utilisateur connecté
+            'code_lab' => $request->code_lab,
             'designation_produit' => $request->designation_produit,
             'quantite' => $request->quantite,
             'methode_essai' => $request->methode_essai,
@@ -73,5 +72,29 @@ class LaborantinController extends Controller
             ->with('produit')
             ->get();
         return view('laborantin.dashboard', compact('analyses'));
+    }
+
+    // Génère automatiquement un rapport d'analyse à partir de la dernière déclaration du laborantin
+    public function genererRapportAuto(Request $request)
+    {
+        $laborantin = Auth::user();
+        $declaration = \App\Models\Declaration::where('id_laborantin', $laborantin->id)->latest()->first();
+        if (!$declaration) {
+            return redirect()->back()->with('error', 'Aucune déclaration trouvée pour générer le rapport.');
+        }
+        $rapport = \App\Models\RapportAnalyse::create([
+            'id_laborantin' => $laborantin->id,
+            'id_declaration' => $declaration->id,
+            'code_lab' => 'AUTO-'.date('YmdHis'),
+            'designation_produit' => $declaration->designation_produit ?? 'Produit',
+            'quantite' => $declaration->quantite ?? 1,
+            'methode_essai' => 'Automatique',
+            'aspect_exterieur' => 'Automatique',
+            'resultat_analyse' => 'Automatique',
+            'date_fabrication' => $declaration->date_fabrication ?? now(),
+            'date_expiration' => $declaration->date_expiration ?? now()->addMonths(6),
+            'conclusion' => 'Généré automatiquement',
+        ]);
+        return redirect()->back()->with('success', 'Rapport généré automatiquement avec succès.');
     }
 }
