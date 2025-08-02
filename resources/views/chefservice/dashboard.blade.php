@@ -1,68 +1,58 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <h2>Tableau de bord - Chef de Service</h2>
-    <form method="get" class="row g-3 mb-3">
-        <div class="col-md-3">
-            <input type="text" name="client" value="{{ request('client') }}" class="form-control" placeholder="Nom du client">
+<div class="max-w-6xl mx-auto mt-10">
+    <h2 class="text-3xl font-bold text-blue-900 mb-6">Tableau de bord - Chef de Service</h2>
+    <form method="get" class="flex flex-col md:flex-row gap-4 mb-6">
+        <input type="text" name="client" value="{{ request('client') }}" class="px-4 py-2 rounded border border-blue-200 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 flex-1" placeholder="Nom du client">
+        <select name="statut" class="px-4 py-2 rounded border border-blue-200 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 flex-1">
+            <option value="">Tous statuts</option>
+            @foreach($statuts as $statut)
+                <option value="{{ $statut }}" @if(request('statut')==$statut) selected @endif>{{ $statut }}</option>
+            @endforeach
+        </select>
+        <div class="flex gap-2 items-center">
+            <button class="px-4 py-2 rounded bg-blue-900 text-white font-semibold hover:bg-yellow-500 hover:text-blue-900 transition" type="submit">Filtrer</button>
+            <a href="{{ route('chefservice.dashboard') }}" class="px-4 py-2 rounded bg-yellow-100 text-blue-900 font-semibold hover:bg-yellow-200 transition">Réinitialiser</a>
         </div>
-        <div class="col-md-3">
-            <select name="statut" class="form-select">
-                <option value="">Tous statuts</option>
-                @foreach($statuts as $statut)
-                    <option value="{{ $statut }}" @if(request('statut')==$statut) selected @endif>{{ $statut }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div class="col-md-3">
-            <button class="btn btn-primary" type="submit">Filtrer</button>
-            <a href="{{ route('chefservice.dashboard') }}" class="btn btn-outline-secondary">Réinitialiser</a>
-        </div>
-        <div class="col-md-3 text-end">
-            <a href="{{ route('chefservice.export', request()->all()) }}" class="btn btn-success">Exporter Excel</a>
-        </div>
+        <a href="{{ route('chefservice.export', request()->all()) }}" class="px-4 py-2 rounded bg-green-600 text-white font-semibold hover:bg-green-800 transition">Exporter Excel</a>
     </form>
-    <div class="card mt-4">
-        <div class="card-header">Vue d'ensemble des dossiers</div>
-        <div class="card-body">
-            @if($dossiers->isEmpty())
-                <div class="alert alert-secondary">Aucun dossier trouvé.</div>
-            @else
-                <table class="table">
-                    <thead>
+    <div class="bg-white rounded-lg shadow p-6 mt-6">
+        <h3 class="text-xl font-bold text-blue-900 mb-4">Vue d'ensemble des dossiers</h3>
+        @if($dossiers->isEmpty())
+            <div class="bg-yellow-50 text-blue-900 p-4 rounded mb-4">Aucun dossier trouvé.</div>
+        @else
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-blue-200">
+                    <thead class="bg-blue-50">
                         <tr>
-                            <th>ID</th>
-                            <th>Client</th>
-                            <th>Produit(s)</th>
-                            <th>Déclarations</th>
-                            <th>Rapports</th>
-                            <th>Statut</th>
-                            <th>Détail</th>
+                            <th class="px-4 py-2 text-left text-sm font-bold text-blue-900">ID</th>
+                            <th class="px-4 py-2 text-left text-sm font-bold text-blue-900">Client</th>
+                            <th class="px-4 py-2 text-left text-sm font-bold text-blue-900">Produit(s)</th>
+                            <th class="px-4 py-2 text-left text-sm font-bold text-blue-900">Déclarations</th>
+                            <th class="px-4 py-2 text-left text-sm font-bold text-blue-900">Rapports</th>
+                            <th class="px-4 py-2 text-left text-sm font-bold text-blue-900">Statut</th>
+                            <th class="px-4 py-2 text-left text-sm font-bold text-blue-900">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="bg-white divide-y divide-blue-100">
                         @foreach($dossiers as $dossier)
                         <tr>
-                            <td>{{ $dossier->id ?? $dossier->id_dossier }}</td>
-                            <td>{{ $dossier->client->name ?? '-' }}</td>
-                            <td>
-                                @foreach($dossier->produits ?? [] as $produit)
-                                    <span class="badge bg-info">{{ $produit->designation }}</span>
-                                @endforeach
+                            <td class="px-4 py-2">{{ $dossier->id }}</td>
+                            <td class="px-4 py-2">{{ $dossier->client->nom ?? '-' }}</td>
+                            <td class="px-4 py-2">{{ $dossier->produits ?? '-' }}</td>
+                            <td class="px-4 py-2">{{ $dossier->declarations_count ?? '-' }}</td>
+                            <td class="px-4 py-2">{{ $dossier->rapports_count ?? '-' }}</td>
+                            <td class="px-4 py-2">{{ $dossier->statut ?? '-' }}</td>
+                            <td class="px-4 py-2">
+                                <a href="{{ route('chefservice.dossier.detail', $dossier->id) }}" class="px-3 py-1 rounded bg-yellow-500 text-blue-900 font-bold hover:bg-blue-900 hover:text-white transition">Voir</a>
                             </td>
-                            <td>{{ $dossier->declarations->count() ?? 0 }}</td>
-                            <td>{{ $dossier->rapports->count() ?? 0 }}</td>
-                            <td>{{ $dossier->statut ?? '-' }}</td>
-                        <td>
-                            <a href="{{ route('chefservice.dossier.detail', $dossier->id ?? $dossier->id_dossier) }}" class="btn btn-sm btn-outline-info">Voir détail</a>
-                        </td>
                         </tr>
                         @endforeach
                     </tbody>
                 </table>
-            @endif
-        </div>
+            </div>
+        @endif
     </div>
 </div>
 @endsection
