@@ -1,6 +1,11 @@
 <div>
     <h2 class="text-xl font-bold mb-4">Commentaires sur le produit</h2>
     <form wire:submit.prevent="ajouterCommentaire" class="mb-4">
+        <select wire:model="produitId" class="w-full border rounded p-2 mb-2">
+            @foreach($produits as $produit)
+                <option value="{{ $produit->id_produit }}">{{ $produit->nom_produit }}</option>
+            @endforeach
+        </select>
         <textarea wire:model.defer="commentaire" class="w-full border rounded p-2 mb-2" placeholder="Ajouter un commentaire..."></textarea>
         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Envoyer</button>
     </form>
@@ -18,4 +23,3 @@
         @endforelse
     </ul>
 </div>
-

@@ -10,6 +10,15 @@ class CommentairesProduit extends Component
 {
     public $produitId;
     public $commentaire;
+    public $produits;
+
+    public function mount()
+    {
+        $this->produits = Produit::all();
+        if (!$this->produitId && $this->produits->count()) {
+            $this->produitId = $this->produits->first()->id;
+        }
+    }
 
     public function ajouterCommentaire()
     {
@@ -25,7 +34,10 @@ class CommentairesProduit extends Component
     public function render()
     {
         $commentaires = Commentaire::where('produit_id', $this->produitId)->latest()->get();
-        return view('livewire.controleur.commentaires-produit', compact('commentaires'));
+        return view('livewire.controleur.commentaires-produit', [
+            'commentaires' => $commentaires,
+            'produits' => $this->produits,
+            'produitId' => $this->produitId,
+        ]);
     }
 }
-

@@ -32,11 +32,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/controleur/dashboard', [App\Http\Controllers\ControleurController::class, 'dashboard'])->name('controleur.dashboard');
     Route::view('/controleur/produits/create', 'controleur.produits.create')->name('controleur.produits.create');
     Route::get('/controleur/notification', [App\Http\Controllers\ControleurController::class, 'notifications'])->name('controleur.notifications');
-
-    Route::get('/controleur/produits/photos', \App\Livewire\Controleur\PhotosProduit::class)->name('controleur.produits.photos');
-    Route::get('/controleur/produits/commentaires', \App\Livewire\Controleur\CommentairesProduit::class)->name('controleur.produits.commentaires');
-    Route::get('/controleur/produits/validation', \App\Livewire\Controleur\ValidationProduit::class)->name('controleur.produits.validation');
-    Route::get('/controleur/demandes', \App\Livewire\Controleur\Demandes::class)->name('controleur.demandes');
+    // Pages Livewire Controleur (format simplifié)
+    Route::view('/controleur/produits/photos', 'controleur_photos_produit')->name('controleur.produits.photos');
+    Route::view('/controleur/produits/commentaires', 'controleur_commentaires_produit')->name('controleur.produits.commentaires');
+    Route::view('/controleur/produits/validation', 'controleur_validation_produit')->name('controleur.produits.validation');
+    Route::view('/controleur/demandes', 'controleur_demandes')->name('controleur.demandes');
 
 });
 // Login universel multi-rôles
@@ -66,5 +66,11 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/forgot-password', function() {
     return view('auth.forgot-password');
 })->name('password.request');
+
+// Page Commentaire
+Route::get('/commentaire', function() {
+    return view('commentaire');
+})->name('commentaire');
+
 
 require __DIR__.'/auth.php';
