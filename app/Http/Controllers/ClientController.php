@@ -25,7 +25,8 @@ class ClientController extends Controller
             return redirect()->route('client.login')
                 ->with('error', 'Veuillez vous connecter pour accéder à votre tableau de bord.');
         }
-        $declarations = Declaration::where('id_client', $client->id_client)
+        // Correction ici : utiliser 'user_id' au lieu de 'id_client'
+        $declarations = Declaration::where('user_id', $client->id)
             ->with('rapports')
             ->get();
 

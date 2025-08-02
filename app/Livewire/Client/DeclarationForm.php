@@ -17,6 +17,8 @@ class DeclarationForm extends Component
     public $numero_impot;
     public $date_soumission;
     public $fichier;
+    public $id_controleur;
+    public $controleurs = [];
 
 
     public function submit()
@@ -27,6 +29,7 @@ class DeclarationForm extends Component
             'unite' => 'required|string',
             'numero_impot' => 'required|string',
             'fichier' => 'nullable|file',
+            'id_controleur' => 'required|integer|exists:users,id',
         ]);
         $user = Auth::user();
         $fichierPath = null;
@@ -46,6 +49,7 @@ class DeclarationForm extends Component
             'date_soumission' => now(),
             'fichier' => $fichierPath,
             'statut' => 'en_attente',
+            'id_controleur' => $this->id_controleur,
         ]);
 
         // Notifier le contrôleur
@@ -60,7 +64,7 @@ class DeclarationForm extends Component
 
         $dateReception = now()->locale('fr_FR')->isoFormat('dddd D MMMM YYYY');
         $dateConvocation = now()->addDay()->locale('fr_FR')->isoFormat('dddd D MMMM YYYY');
-        $message = "Votre demande a bien été reçue, le $dateReception. Veuillez vous présenter pour le contrôle à cette date $dateConvocation.";
+        $message = "Votre demande a bien été reçue, le $dateReception. Veuillez vous présenter pour le contrôle ������ cette date $dateConvocation.";
         session()->flash('success', $message);
         return redirect()->route('client.dashboard');
     }
@@ -71,12 +75,15 @@ class DeclarationForm extends Component
     {
         $this->date_soumission = now()->toDateString();
         $this->produits = Produit::all();
+        // Récupère tous les utilisateurs ayant le rôle 'controleur'
+        $this->controleurs = \App\Models\User::where('role', 'controleur')->get();
     }
 
     public function render()
     {
         return view('livewire.client.declaration-form', [
-            'produits' => $this->produits
+            'produits' => $this->produits,
+            'controleurs' => $this->controleurs
         ]);
     }
 }

@@ -2,48 +2,37 @@
 
 @section('content')
 <div class="max-w-4xl mx-auto mt-10">
-    <h2 class="text-2xl font-bold text-blue-900 mb-6">Détail de la demande #{{ $demande->id }}</h2>
+    <h2 class="text-2xl font-bold text-blue-900 mb-6">Détail du produit</h2>
     <div class="mb-8">
-        <p class="text-blue-800">Client : <span class="font-semibold">{{ $demande->client->name ?? '-' }}</span></p>
-        <p class="text-blue-800">Date : <span class="font-semibold">{{ $demande->created_at->format('d/m/Y') }}</span></p>
-        <p class="text-blue-800">Statut : <span class="font-semibold">{{ $demande->statut }}</span></p>
+        @if($produit)
+            <h3 class="text-lg font-bold text-blue-900 mb-4">{{ $produit->nom_produit }}</h3>
+            <p class="text-blue-800"><strong>Catégorie :</strong> {{ $produit->categorie_produit }}</p>
+            <p class="text-blue-800"><strong>Description :</strong> {{ $produit->description }}</p>
+        @else
+            <p class="text-red-600">Aucun produit lié à cette demande.</p>
+        @endif
     </div>
     <div class="mb-8">
-        <h3 class="text-lg font-bold text-blue-900 mb-4">Gestion des produits</h3>
-        @livewire('produit-crud', ['demande' => $demande])
-    </div>
-    <div class="mb-8">
-        <h3 class="text-lg font-bold text-blue-900 mb-4">Actions sur les produits</h3>
-        <ul class="space-y-3">
-            <li>
-                <span class="font-semibold text-blue-900">Ajouter un produit :</span>
-                <a href="{{ route('controleur.produit.add', $demande->id) }}" class="px-3 py-1 rounded bg-green-500 text-white font-bold hover:bg-blue-900 hover:text-white transition">Ajouter produit</a>
-            </li>
-            <li>
-                <span class="font-semibold text-blue-900">Prendre une photo :</span>
-                <form action="{{ route('controleur.produit.photo', $demande->id) }}" method="POST" enctype="multipart/form-data" class="inline">
-                    @csrf
-                    <input type="file" name="photo" class="inline-block">
-                    <button type="submit" class="px-3 py-1 rounded bg-yellow-500 text-blue-900 font-bold hover:bg-blue-900 hover:text-white transition">Envoyer</button>
-                </form>
-            </li>
-            <li>
-                <span class="font-semibold text-blue-900">Ajouter un commentaire :</span>
-                <form action="{{ route('controleur.produit.commentaire', $demande->id) }}" method="POST" class="inline">
-                    @csrf
-                    <input type="text" name="commentaire" placeholder="Votre commentaire" class="px-2 py-1 rounded border border-blue-200">
-                    <button type="submit" class="px-3 py-1 rounded bg-blue-900 text-white font-bold hover:bg-yellow-500 hover:text-blue-900 transition">Ajouter</button>
-                </form>
-            </li>
-            <li>
-                <span class="font-semibold text-blue-900">Valider le produit :</span>
-                <a href="{{ route('controleur.produit.valider', $demande->id) }}" class="px-3 py-1 rounded bg-blue-900 text-white font-bold hover:bg-yellow-500 hover:text-blue-900 transition">Valider</a>
-            </li>
-            <li>
-                <span class="font-semibold text-blue-900">Rejeter le produit :</span>
-                <a href="{{ route('controleur.produit.rejeter', $demande->id) }}" class="px-3 py-1 rounded bg-red-600 text-white font-bold hover:bg-yellow-500 hover:text-blue-900 transition">Rejeter</a>
-            </li>
-        </ul>
+        <h3 class="text-lg font-bold text-blue-900 mb-4">Scanner / Mettre à jour les dates</h3>
+        @if($produit)
+            <form action="{{ route('controleur.produit.scan', $produit->id_produit) }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="mb-3">
+                    <label for="date_fabrication" class="form-label">Date de fabrication</label>
+                    <input type="date" name="date_fabrication" id="date_fabrication" class="form-control" value="{{ old('date_fabrication', $produit->date_fabrication) }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="date_expiration" class="form-label">Date d'expiration</label>
+                    <input type="date" name="date_expiration" id="date_expiration" class="form-control" value="{{ old('date_expiration', $produit->date_expiration) }}" required>
+                </div>
+                <button type="submit" class="btn btn-success">Scanner / Mettre à jour</button>
+            </form>
+        @endif
+        @if(isset($validite))
+            <div class="alert mt-3 {{ $validite['passable'] ? 'alert-success' : 'alert-danger' }}">
+                <strong>Validité :</strong> {{ $validite['message'] }}
+            </div>
+        @endif
     </div>
 </div>
 @endsection

@@ -13,9 +13,13 @@ class ControleurController extends Controller
     public function dashboard()
     {
         $controleur = Auth::user();
-        $demandes = \App\Models\Declaration::where('id_controleur', $controleur->id_controleur)
-            ->with('produits')
-            ->get();
+        // Afficher toutes les demandes, même celles non encore assignées
+        $demandes = \App\Models\Declaration::where(function($query) use ($controleur) {
+            $query->where('id_controleur', $controleur->id_controleur)
+                  ->orWhereNull('id_controleur');
+        })
+        ->with('produits')
+        ->get();
         return view('controleur.dashboard', compact('demandes'));
     }
 
@@ -60,7 +64,20 @@ class ControleurController extends Controller
     public function showDemande($demandeId)
     {
         $demande = Declaration::with('produits')->findOrFail($demandeId);
-        return view('controleur.demande_show', compact('demande'));
+        $produit = $demande->produits->first();
+        $validite = null;
+        // Si aucun produit n'est lié à la demande, on évite l'erreur
+        if (!$produit) {
+            return view('controleur.demande_show', ['produit' => null, 'validite' => null]);
+        }
+        if ($produit->date_expiration && $produit->date_fabrication) {
+            $diff = now()->diffInMonths(\Carbon\Carbon::parse($produit->date_expiration), false);
+            $validite = [
+                'passable' => $produit->statut === 'passable',
+                'message' => ($produit->statut === 'passable' ? 'Produit passable' : 'Produit non passable') . ' (expiration dans ' . $diff . ' mois)'
+            ];
+        }
+        return view('controleur.demande_show', compact('produit', 'validite'));
     }
 
     // Prendre une photo d'un produit (upload)

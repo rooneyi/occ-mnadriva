@@ -37,7 +37,9 @@ Route::middleware(['auth'])->group(function () {
     Route::view('/controleur/produits/commentaires', 'controleur_commentaires_produit')->name('controleur.produits.commentaires');
     Route::view('/controleur/produits/validation', 'controleur_validation_produit')->name('controleur.produits.validation');
     Route::view('/controleur/demandes', 'controleur_demandes')->name('controleur.demandes');
-    Route::get('/controleur/declaration/{id}', [App\Http\Controllers\ControleurController::class, 'showDeclarationDetail'])->name('controleur.declaration.detail');
+    Route::view('/controleur/declaration/{id}','controleur.declaration-detail')->name('controleur.declaration.detail');
+    Route::get('/controleur/demande/{id}', [App\Http\Controllers\ControleurController::class, 'showDemande'])->name('controleur.demande.show');
+    Route::get('/controleur/produit/{id}/rejeter', [App\Http\Controllers\ControleurController::class, 'rejeterProduit'])->name('controleur.produit.rejeter');
 });
 // Login universel multi-rôles
 Route::get('/login', [App\Http\Controllers\UniversalLoginController::class, 'showForm'])->name('login');

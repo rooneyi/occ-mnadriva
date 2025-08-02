@@ -17,6 +17,7 @@ class Declaration extends Model
         'date_soumission',
         'fichier',
         'statut',
+        'id_controleur', // Ajouté pour l'assignation au contrôleur
     ];
     // Si besoin d'un lien avec l'utilisateur (client)
     public function user()

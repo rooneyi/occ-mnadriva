@@ -31,25 +31,17 @@
                     <tbody class="bg-white divide-y divide-blue-100">
                         @foreach($demandes as $demande)
                         <tr>
-                            <td class="px-4 py-2">{{ $demande->id }}</td>
+                            <td class="px-4 py-2">{{ $demande->id_declaration }}</td>
                             <td class="px-4 py-2">{{ $demande->client->name ?? '-' }}</td>
                             <td class="px-4 py-2">{{ $demande->created_at->format('d/m/Y') }}</td>
                             <td class="px-4 py-2">{{ $demande->statut }}</td>
                             <td class="px-4 py-2 space-x-2">
-                                <a href="{{ route('controleur.demande.show', $demande->id) }}" class="px-3 py-1 rounded bg-yellow-500 text-blue-900 font-bold hover:bg-blue-900 hover:text-white transition">Voir</a>
-                                <a href="{{ route('controleur.produit.add', $demande->id) }}" class="px-3 py-1 rounded bg-green-500 text-white font-bold hover:bg-blue-900 hover:text-white transition">Ajouter produit</a>
-                                <form action="{{ route('controleur.produit.photo', $demande->id) }}" method="POST" enctype="multipart/form-data" class="inline">
-                                    @csrf
-                                    <input type="file" name="photo" class="inline-block">
-                                    <button type="submit" class="px-3 py-1 rounded bg-yellow-500 text-blue-900 font-bold hover:bg-blue-900 hover:text-white transition">Photo</button>
-                                </form>
-                                <form action="{{ route('controleur.produit.commentaire', $demande->id) }}" method="POST" class="inline">
-                                    @csrf
-                                    <input type="text" name="commentaire" placeholder="Commentaire" class="px-2 py-1 rounded border border-blue-200">
-                                    <button type="submit" class="px-3 py-1 rounded bg-blue-900 text-white font-bold hover:bg-yellow-500 hover:text-blue-900 transition">Commenter</button>
-                                </form>
-                                <a href="{{ route('controleur.produit.valider', $demande->id) }}" class="px-3 py-1 rounded bg-blue-900 text-white font-bold hover:bg-yellow-500 hover:text-blue-900 transition">Valider</a>
-                                <a href="{{ route('controleur.produit.rejeter', $demande->id) }}" class="px-3 py-1 rounded bg-red-600 text-white font-bold hover:bg-yellow-500 hover:text-blue-900 transition">Rejeter</a>
+                                <a href="{{ route('controleur.demande.show', $demande->id_declaration) }}" class="px-3 py-1 rounded bg-yellow-500 text-blue-900 font-bold hover:bg-blue-900 hover:text-white transition">Voir</a>
+{{--                                <a href="{{ route('controleur.produit.', $demande->id_declaration) }}" class="px-3 py-1 rounded bg-green-500 text-white font-bold hover:bg-blue-900 hover:text-white transition">Ajouter produit</a>--}}
+                                <a href="{{ route('controleur.produits.photos') }}" class="px-3 py-1 rounded bg-yellow-500 text-blue-900 font-bold hover:bg-blue-900 hover:text-white transition">Photo</a>
+                                <a href="{{ route('controleur.produits.commentaires') }}" class="px-3 py-1 rounded bg-blue-900 text-white font-bold hover:bg-yellow-500 hover:text-blue-900 transition">Commenter</a>
+                                <a href="{{ route('controleur.produits.validation') }}" class="px-3 py-1 rounded bg-blue-900 text-white font-bold hover:bg-yellow-500 hover:text-blue-900 transition">Valider</a>
+                                <a href="{{ route('controleur.produit.rejeter', $demande->id_declaration) }}" class="px-3 py-1 rounded bg-red-600 text-white font-bold hover:bg-yellow-500 hover:text-blue-900 transition">Rejeter</a>
                             </td>
                         </tr>
                         @endforeach
