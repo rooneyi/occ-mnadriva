@@ -4,6 +4,7 @@ namespace App\Livewire\Controleur;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Produit;
+use App\Models\ProduitPhoto;
 
 class PhotosProduit extends Component
 {
@@ -24,16 +25,25 @@ class PhotosProduit extends Component
     public function save()
     {
         foreach ($this->photos as $photo) {
-            $photo->store('photos-produits', 'public');
+            $path = $photo->store('photos-produits', 'public');
+            ProduitPhoto::create([
+                'produit_id' => $this->produitId,
+                'chemin_photo' => $path,
+            ]);
         }
         session()->flash('success', 'Photos enregistrées avec succès.');
     }
 
     public function render()
     {
+        $photos = [];
+        if ($this->produitId) {
+            $photos = \App\Models\ProduitPhoto::where('produit_id', $this->produitId)->get();
+        }
         return view('livewire.controleur.photos-produit', [
             'produits' => $this->produits,
             'produitId' => $this->produitId,
+            'photos' => $photos,
         ]);
     }
 }
