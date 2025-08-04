@@ -51,6 +51,14 @@
         <div class="flex justify-end mb-4">
             <form action="{{ route('laborantin.genererRapportAuto') }}" method="POST">
                 @csrf
+                <select name="id_produit" class="px-4 py-2 rounded border mr-2" required>
+                    <option value="">Sélectionner un produit</option>
+                    @foreach(App\Models\Produit::all() as $produit)
+                        <option value="{{ $produit->id_produit ?? $produit->id }}">
+                            {{ $produit->nom_produit ?? $produit->designation ?? $produit->designation_produit ?? 'Produit' }}
+                        </option>
+                    @endforeach
+                </select>
                 <button type="submit" class="px-4 py-2 rounded bg-green-700 text-white font-semibold hover:bg-green-500 transition">
                     Générer automatiquement un rapport d’analyse
                 </button>

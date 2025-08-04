@@ -46,7 +46,7 @@ class LaborantinController extends Controller
             'conclusion' => $request->conclusion,
         ]);
         // Génération automatique du rapport PDF (optionnel)
-        // Notifier le contrôleur
+        // Notifier le contrôleur pour validation
         $controleur = \App\Models\User::where('role', 'controleur')->first();
         if ($controleur) {
             $controleur->notify(new \App\Notifications\AnalyseSubmitted($rapport));
@@ -58,7 +58,7 @@ class LaborantinController extends Controller
     public function historique()
     {
         $laborantin = Auth::user();
-        $analyses = \App\Models\RapportAnalyse::where('id_laborantin', $laborantin->id_laborantin)->latest()->get();
+        $analyses = \App\Models\RapportAnalyse::where('id_laborantin', $laborantin->id)->latest()->get();
         return view('laborantin.historique', compact('analyses'));
     }
 
@@ -66,35 +66,48 @@ class LaborantinController extends Controller
     public function dashboard()
     {
         $laborantin = Auth::user();
-        // Exemple : récupérer les déclarations à analyser (à adapter selon ta logique métier)
-        $analyses = Declaration::where('statut', 'en_attente')
-            ->where('id_laborantin', $laborantin->id_laborantin)
-            ->with('produit')
-            ->get();
-        return view('laborantin.dashboard', compact('analyses'));
+        $analyses = \App\Models\RapportAnalyse::where('id_laborantin', $laborantin->id)->latest()->get();
+        // Récupérer uniquement les produits sur lesquels le laborantin a soumis une déclaration
+        $produits = \App\Models\Produit::whereIn('id_produit', function($query) use ($laborantin) {
+            $query->select('id_produit')
+                ->from('declaration_produit')
+                ->whereIn('id_declaration', function($q) use ($laborantin) {
+                    $q->select('id_declaration')
+                        ->from('declarations')
+                        ->where('id_laborantin', $laborantin->id);
+                });
+        })->get();
+        return view('laborantin.dashboard', compact('analyses', 'produits'));
     }
 
     // Génère automatiquement un rapport d'analyse à partir de la dernière déclaration du laborantin
     public function genererRapportAuto(Request $request)
     {
         $laborantin = Auth::user();
-        $declaration = \App\Models\Declaration::where('id_laborantin', $laborantin->id)->latest()->first();
-        if (!$declaration) {
-            return redirect()->back()->with('error', 'Aucune déclaration trouvée pour générer le rapport.');
+        $produitId = $request->id_produit;
+        $produit = \App\Models\Produit::find($produitId);
+        if (!$produit) {
+            return redirect()->back()->with('error', 'Aucun produit trouvé pour générer le rapport.');
         }
+        // Ici, on ne cherche plus la déclaration, on génère le rapport uniquement avec le produit sélectionné
         $rapport = \App\Models\RapportAnalyse::create([
             'id_laborantin' => $laborantin->id,
-            'id_declaration' => $declaration->id,
+            'designation_produit' => $produit->nom_produit ?? $produit->designation ?? $produit->designation_produit ?? 'Produit',
             'code_lab' => 'AUTO-'.date('YmdHis'),
-            'designation_produit' => $declaration->designation_produit ?? 'Produit',
-            'quantite' => $declaration->quantite ?? 1,
+            'quantite' => 1,
             'methode_essai' => 'Automatique',
             'aspect_exterieur' => 'Automatique',
             'resultat_analyse' => 'Automatique',
-            'date_fabrication' => $declaration->date_fabrication ?? now(),
-            'date_expiration' => $declaration->date_expiration ?? now()->addMonths(6),
+            'date_fabrication' => $produit->date_fabrication ?? now(),
+            'date_expiration' => $produit->date_expiration ?? now()->addMonths(6),
             'conclusion' => 'Généré automatiquement',
         ]);
-        return redirect()->back()->with('success', 'Rapport généré automatiquement avec succès.');
+        $submitted = [
+            'id_produit' => $produitId,
+            'nom_produit' => $produit->nom_produit ?? $produit->designation ?? $produit->designation_produit ?? null,
+            'date_fabrication' => $produit->date_fabrication ?? '',
+            'date_expiration' => $produit->date_expiration ?? '',
+        ];
+        return redirect()->back()->with(['success' => 'Rapport généré automatiquement avec succès.', 'submitted' => $submitted]);
     }
 }

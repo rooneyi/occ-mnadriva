@@ -85,6 +85,22 @@ class ClientController extends Controller
             $declaration->joindreDocument($path);
         }
 
+        // Notifier le client avec les données spécifiques au produit soumis
+        $produit = $request->produits[0] ?? null; // Exemple pour le premier produit soumis
+        if ($produit) {
+            $client->notify(new \App\Notifications\ClientDeclarationSubmitted([
+                'declaration_id' => $declaration->id,
+                'designation_produit' => $produit, // Produit spécifique soumis
+                'quantiter' => 1, // Quantité pour ce produit spécifique
+                'statut' => $declaration->statut,
+            ]));
+        }
+
+        // Notifier le contrôleur
+        if ($controleur) {
+            $controleur->notify(new \App\Notifications\ControleurDeclarationNotification());
+        }
+
         return redirect()->route('client.dashboard')
             ->with('success', 'Déclaration soumise avec succès.');
     }

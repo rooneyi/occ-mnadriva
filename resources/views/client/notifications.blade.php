@@ -14,7 +14,12 @@
             <ul>
                 @foreach($notifications as $notification)
                     <li class="mb-4 border-b pb-2">
-                        {{ $notification->data['message'] ?? $notification->data['body'] ?? 'Nouvelle notification.' }}
+                        @php
+                            $data = $notification->data;
+                        @endphp
+                        <strong>Produit :</strong> {{ $data['designation_produit'] ?? 'N/A' }}<br>
+                        <strong>Quantité :</strong> {{ $data['quantiter'] ?? 'N/A' }}<br>
+                        <strong>Statut :</strong> {{ $data['statut'] ?? 'N/A' }}<br>
                         <span class="text-xs text-gray-500 float-right">{{ $notification->created_at->format('d/m/Y H:i') }}</span>
                     </li>
                 @endforeach

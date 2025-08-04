@@ -17,4 +17,9 @@ class Produit extends Model
         'date_expiration',
         'statut',
     ];
+
+    public function declarations()
+    {
+        return $this->belongsToMany(Declaration::class, 'declaration_produit', 'id_produit', 'id_declaration');
+    }
 }

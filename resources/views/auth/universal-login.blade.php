@@ -26,16 +26,6 @@
                 <label for="remember" class="ml-2 block text-sm text-blue-900">Se souvenir de moi</label>
             </div>
         </div>
-        <div>
-            <label for="role" class="block text-sm font-medium text-blue-900">Rôle</label>
-            <select name="role" id="role" required class="mt-1 block w-full px-3 py-2 border border-blue-200 bg-white rounded text-blue-900 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500">
-                <option value="">Choisir un rôle</option>
-                <option value="client">Client</option>
-                <option value="controleur">Contrôleur</option>
-                <option value="laborantin">Laborantin</option>
-                <option value="chef_service">Chef de Service</option>
-            </select>
-        </div>
         <button type="submit" class="w-full py-2 px-4 rounded bg-blue-900 text-white font-bold hover:bg-yellow-500 hover:text-blue-900 transition duration-150 shadow">Connexion</button>
     </form>
     <div class="mt-6 text-center text-sm text-blue-700">

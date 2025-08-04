@@ -62,6 +62,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/laborantin/analyse', [App\Http\Controllers\LaborantinController::class, 'showAnalyseForm'])->name('laborantin.analyse.form');
     Route::post('/laborantin/analyse', [App\Http\Controllers\LaborantinController::class, 'storeRapport'])->name('laborantin.rapport.store');
     Route::get('/laborantin/historique', [App\Http\Controllers\LaborantinController::class, 'historique'])->name('laborantin.historique');
+    Route::post('/laborantin/generer-rapport-auto', [App\Http\Controllers\LaborantinController::class, 'genererRapportAuto'])->name('laborantin.genererRapportAuto');
 });
 
 // Ajout de la route pour mot de passe oublié

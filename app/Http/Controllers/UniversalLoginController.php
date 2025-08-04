@@ -32,9 +32,9 @@ class UniversalLoginController extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
-            'role' => 'required',
         ]);
-        $user = User::where('email', $request->email)->where('role', $request->role)->first();
+
+        $user = User::where('email', $request->email)->first(); // Suppression de la vérification du rôle
         if ($user && Hash::check($request->password, $user->password)) {
             Auth::login($user, true);
             $request->session()->regenerate();
@@ -51,6 +51,9 @@ class UniversalLoginController extends Controller
                     return redirect()->route('client.dashboard');
             }
         }
-        return back()->withErrors(['email' => 'Identifiants ou rôle incorrects.'])->withInput();
+
+        return back()->withErrors([
+            'email' => 'Les informations de connexion sont incorrectes.',
+        ]);
     }
 }
