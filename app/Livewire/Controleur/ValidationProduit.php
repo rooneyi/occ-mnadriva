@@ -66,10 +66,15 @@ class ValidationProduit extends Component
     public function render()
     {
         $produit = null;
+        $rapportSoumis = false;
         if ($this->produitId) {
             $produit = Produit::where('id_produit', $this->produitId)->first();
             if ($produit) {
                 $this->calculerStatut($produit);
+                // Vérifier si un rapport d'analyse existe et est soumis pour ce produit
+                $rapportSoumis = \App\Models\RapportAnalyse::where('designation_produit', $produit->nom_produit)
+                    ->where('statut', 'soumis')
+                    ->exists();
             } else {
                 $this->moisRestants = null;
                 $this->statutAuto = null;
@@ -82,6 +87,7 @@ class ValidationProduit extends Component
             'produit' => $produit,
             'moisRestants' => $this->moisRestants,
             'statutAuto' => $this->statutAuto,
+            'rapportSoumis' => $rapportSoumis,
         ]);
     }
 }

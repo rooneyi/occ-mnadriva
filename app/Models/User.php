@@ -2,16 +2,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-
-
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Notifications\DatabaseNotification; // <-- Add this import
 
 class User extends Authenticatable
 {
-    use Notifiable;
-    use HasFactory;
+    use Notifiable, HasFactory;
 
     protected $fillable = [
         'name',
@@ -25,5 +22,10 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
-}
 
+    public function notifications()
+    {
+        return $this->morphMany(DatabaseNotification::class, 'notifiable')
+            ->orderBy('created_at', 'desc');
+    }
+}

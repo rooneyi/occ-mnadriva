@@ -21,9 +21,10 @@
         @csrf
         <div class="mb-4">
             <label class="block font-semibold mb-1">Produit :</label>
-            <select name="designation_produit" id="produitSelect" class="border rounded p-2 w-full">
+            <select name="id_produit" id="produitSelect" class="border rounded p-2 w-full">
                 @foreach($produits as $produit)
-                    <option value="{{ $produit->nom_produit }}"
+                    <option value="{{ $produit->id_produit }}"
+                        data-nom-produit="{{ $produit->nom_produit }}"
                         data-date-fabrication="{{ $produit->date_fabrication }}"
                         data-date-expiration="{{ $produit->date_expiration }}"
                         data-declaration-id="{{ optional(optional($produit->declarations)->first())->id ?? '' }}">
@@ -54,7 +55,7 @@
         </div>
         <div class="mb-4">
             <label class="block font-semibold mb-1">Date fabrication :</label>
-            <input type="date" name="date_fabrication" id="dateFabricationInput" class="border rounded p-2 w-full">
+            <input type="date" name="date_fabrication" id="dateFabricationInput" class="border rounded p-2 w-full" required>
         </div>
         <div class="mb-4">
             <label class="block font-semibold mb-1">Date expiration :</label>

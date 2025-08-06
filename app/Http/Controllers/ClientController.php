@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Produit;
 use Illuminate\Http\Request;
 use App\Models\Client;
 use App\Models\Declaration;
@@ -67,6 +68,7 @@ class ClientController extends Controller
         $controleur = \App\Models\User::where('role', 'controleur')->first();
         $declaration = Declaration::create([
             'id_client'       => $client->id_client,
+            'id_declaration' => $request->id_declaration,
             'unite'           => $request->unite,
             'numero_import'   => $request->numero_import,
             'date_soumission' => now(),
@@ -76,7 +78,17 @@ class ClientController extends Controller
         ]);
 
         // Lier les produits
-        $declaration->produits()->sync($request->produits);
+        // Débogage : journaliser les IDs des produits transmis
+        \Log::info('Produits transmis pour la déclaration :', $request->produits);
+
+        // Vérifier et synchroniser les produits avec la déclaration
+        if (!empty($request->produits)) {
+            $produitIds = array_filter($request->produits, function ($id) {
+                return is_numeric($id);
+            });
+            \Log::info('Produits après filtrage :', $produitIds);
+            $declaration->produits()->sync($produitIds);
+        }
 
         // Joindre le document si fourni
         if ($request->hasFile('document')) {
@@ -85,24 +97,44 @@ class ClientController extends Controller
             $declaration->joindreDocument($path);
         }
 
-        // Notifier le client avec les données spécifiques au produit soumis
-        $produit = $request->produits[0] ?? null; // Exemple pour le premier produit soumis
-        if ($produit) {
-            $client->notify(new \App\Notifications\ClientDeclarationSubmitted([
-                'declaration_id' => $declaration->id,
-                'designation_produit' => $produit, // Produit spécifique soumis
-                'quantiter' => 1, // Quantité pour ce produit spécifique
+        // Charger les produits associés à la déclaration
+        $declaration->load('produits');
+
+        // Préparer la liste des produits pour la notification
+        $produitsNotif = $declaration->produits->map(function($produit) {
+            return [
+                'nom_produit' => $produit->nom_produit,
+                'quantite' => $produit->quantite,
+            ];
+        })->toArray();
+
+        // Notifier le client avec tous les produits soumis
+        $client->notify(new \App\Notifications\ClientDeclarationSubmitted([
+            'id_declaration' => $declaration->id_declaration,
+            'statut' => $declaration->statut,
+            'produits' => $produitsNotif,
+        ]));
+
+        // Notifier le contrôleur avec tous les produits
+        if ($controleur) {
+            $controleur->notify(new \App\Notifications\ControleurDeclarationNotification([
+                'id' => $declaration->id_declaration,
                 'statut' => $declaration->statut,
+                'produits' => $produitsNotif,
             ]));
         }
 
-        // Notifier le contrôleur
-        if ($controleur) {
-            $controleur->notify(new \App\Notifications\ControleurDeclarationNotification());
-        }
+        // Charger les déclarations associées au client
+        $declarations = Declaration::where('user_id', $client->id)
+            ->with('produits')
+            ->latest()
+            ->get();
 
-        return redirect()->route('client.dashboard')
-            ->with('success', 'Déclaration soumise avec succès.');
+        // Retourner directement à la vue du tableau de bord avec les déclarations
+        return view('client.dashboard', [
+            'client' => $client,
+            'declarations' => $declarations,
+        ]);
     }
 
     /**

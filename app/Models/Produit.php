@@ -22,4 +22,6 @@ class Produit extends Model
     {
         return $this->belongsToMany(Declaration::class, 'declaration_produit', 'id_produit', 'id_declaration');
     }
+
+
 }

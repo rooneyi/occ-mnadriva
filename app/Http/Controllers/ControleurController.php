@@ -23,6 +23,24 @@ class ControleurController extends Controller
         return view('controleur.dashboard', compact('demandes'));
     }
 
+    // Nouvelle méthode pour afficher le tableau de bord avec les déclarations assignées
+    public function showDashboard()
+    {
+        $controleur = Auth::user();
+
+        // Charger les déclarations assignées au contrôleur
+        $declarations = Declaration::where('user_id_controleur', $controleur->id)
+            ->with('produits')
+            ->latest()
+            ->get();
+
+        // Retourner directement à la vue du tableau de bord avec les déclarations
+        return view('controleur.dashboard', [
+            'controleur' => $controleur,
+            'declarations' => $declarations,
+        ]);
+    }
+
     // Liste des demandes assignées au contrôleur
     public function demandesAssignees()
     {
@@ -31,22 +49,6 @@ class ControleurController extends Controller
         return view('controleur.demandes', compact('demandes'));
     }
 
-    // Notifications du contrôleur
-    public function notifications()
-    {
-        $user = Auth::user();
-        // Assignation automatique des demandes depuis les notifications
-        $notifications = $user->notifications()->where('type', 'App\\Notifications\\DeclarationSubmitted')->get();
-        foreach ($notifications as $notif) {
-            $data = $notif->data;
-            if (isset($data['declaration_id'])) {
-                Declaration::where('id_declaration', $data['declaration_id'])
-                    ->update(['user_id_controleur' => $user->id]);
-            }
-        }
-        $notifications = $user->notifications()->latest()->get();
-        return view('controleur.notifications', compact('notifications'));
-    }
 
     // Ajouter un produit à une demande
     public function addProduit($demandeId)
@@ -187,5 +189,23 @@ class ControleurController extends Controller
             }
         }
         return redirect()->back()->with('success', 'Toutes les demandes des notifications ont été assignées à ce contrôleur.');
+    }
+
+    // Afficher les détails d'une déclaration
+    public function showDeclaration($id)
+    {
+        // Récupérer les détails de la déclaration
+        $declaration = \App\Models\Declaration::with('produit')->findOrFail($id);
+
+        // Passer les données à la vue
+        return view('controleur.declaration-detail', compact('declaration'));
+    }
+
+    // Afficher les notifications du contrôleur
+    public function notifications()
+    {
+        $user = auth()->user();
+        $notifications = $user->notifications()->latest()->get();
+        return view('livewire.controleur.notifications', compact('notifications'));
     }
 }

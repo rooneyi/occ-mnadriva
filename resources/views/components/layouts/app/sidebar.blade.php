@@ -56,7 +56,7 @@
                 <a href="{{ route('controleur.produits.validation') }}"
                    class="block py-2 px-3 rounded transition hover:bg-blue-800 hover:pl-5">Valider ou rejeter un
                     produit</a>
-                <a href="{{ route('controleur.notifications') }}"
+                <a href="{{ url('controleur/notifications') }}"
                    class="block py-2 px-3 rounded transition hover:bg-blue-800 hover:pl-5">Notifications</a>
             @elseif($role === 'laborantin')
                 <a href="{{ route('laborantin.dashboard') }}"

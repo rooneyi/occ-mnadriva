@@ -4,7 +4,7 @@
 <div class="max-w-5xl mx-auto mt-10">
     <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
         <h2 class="text-3xl font-bold text-blue-900 mb-4 sm:mb-0">Tableau de bord du Contrôleur</h2>
-        <a href="{{ route('controleur.notifications') }}" class="relative px-4 py-2 rounded bg-blue-900 text-white font-semibold hover:bg-yellow-500 hover:text-blue-900 transition">
+        <a href="{{ url('controleur/notifications') }}" class="relative px-4 py-2 rounded bg-blue-900 text-white font-semibold hover:bg-yellow-500 hover:text-blue-900 transition">
             Notifications
             @php $unread = auth()->user()->unreadNotifications->count(); @endphp
             @if($unread > 0)

@@ -15,7 +15,11 @@ class LaborantinController extends Controller
     {
         $laborantin = Auth::user();
         $declarations = \App\Models\Declaration::with('produits', 'client')->get();
-        $produits = \App\Models\Produit::all();
+        $produits = collect();
+        if ($declarations->count() > 0) {
+            // On récupère tous les produits liés aux déclarations sélectionnées (évite doublons)
+            $produits = $declarations->flatMap->produits->unique('id_produit');
+        }
         return view('laborantin.analyse-form', compact('declarations', 'produits'));
     }
 
@@ -51,7 +55,7 @@ class LaborantinController extends Controller
         if ($controleur) {
             $controleur->notify(new \App\Notifications\AnalyseSubmitted($rapport));
         }
-        return redirect()->route('laborantin.historique')->with('success', 'Rapport généré et soumis au contrôleur.');
+        return redirect()->route('laborantin.historique')->with('success', 'Rapport généré pour le produit ' . ($produit->nom_produit ?? '') . ' et soumis au contrôleur.');
     }
 
     // Historique des analyses
@@ -103,7 +107,7 @@ class LaborantinController extends Controller
             'conclusion' => 'Généré automatiquement',
         ]);
         $submitted = [
-            'id_produit' => $produitId,
+            'id_produit' => $produit->id_produit,
             'nom_produit' => $produit->nom_produit ?? $produit->designation ?? $produit->designation_produit ?? null,
             'date_fabrication' => $produit->date_fabrication ?? '',
             'date_expiration' => $produit->date_expiration ?? '',

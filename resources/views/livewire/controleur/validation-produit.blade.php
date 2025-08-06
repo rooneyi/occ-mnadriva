@@ -28,11 +28,15 @@
             <strong>Statut automatique :</strong> <span class="font-bold {{ $statutAuto == 'passable' ? 'text-green-600' : 'text-red-600' }}">{{ $statutAuto ?? 'N/A' }}</span><br>
             <strong>Statut actuel :</strong> {{ $produit->statut ?? 'N/A' }}
         </div>
+        @if(!$rapportSoumis)
+            <div class="text-yellow-700 bg-yellow-100 border rounded p-2 mb-2">
+                Le rapport d'analyse du laborantin n'a pas encore été soumis. Vous ne pouvez pas valider ce produit tant que le rapport n'est pas disponible.
+            </div>
+        @endif
         <form wire:submit.prevent="valider" class="inline-block mr-2">
-
             <button type="submit"
-                class="px-4 py-2 rounded text-white @if(empty($produit->date_fabrication) || empty($produit->date_expiration) || $statutAuto !== 'passable') bg-gray-400 cursor-not-allowed @else bg-green-600 @endif"
-                @if(empty($produit->date_fabrication) || empty($produit->date_expiration) || $statutAuto !== 'passable') disabled @endif>
+                class="px-4 py-2 rounded text-white @if(!$rapportSoumis || empty($produit->date_fabrication) || empty($produit->date_expiration) || $statutAuto !== 'passable') bg-gray-400 cursor-not-allowed @else bg-green-600 @endif"
+                @if(!$rapportSoumis || empty($produit->date_fabrication) || empty($produit->date_expiration) || $statutAuto !== 'passable') disabled @endif>
                 Valider
             </button>
         </form>

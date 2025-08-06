@@ -11,6 +11,7 @@ class DeclarationForm extends Component
 {
     use WithFileUploads;
 
+    public $id_declaration;
     public $designation_produit;
     public $quantiter;
     public $unite;

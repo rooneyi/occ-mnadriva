@@ -31,13 +31,13 @@ Route::get('/client/notifications', function() {
 Route::middleware(['auth'])->group(function () {
     Route::get('/controleur/dashboard', [App\Http\Controllers\ControleurController::class, 'dashboard'])->name('controleur.dashboard');
     Route::view('/controleur/produits/create', 'controleur.produits.create')->name('controleur.produits.create');
-    Route::get('/controleur/notification', [App\Http\Controllers\ControleurController::class, 'notifications'])->name('controleur.notifications');
+    Route::get('/controleur/notifications', [App\Http\Controllers\ControleurController::class, 'notifications'])->name('controleur.notifications');
     // Pages Livewire Controleur (format simplifié)
     Route::view('/controleur/produits/photos', 'controleur_photos_produit')->name('controleur.produits.photos');
     Route::view('/controleur/produits/commentaires', 'controleur_commentaires_produit')->name('controleur.produits.commentaires');
     Route::view('/controleur/produits/validation', 'controleur_validation_produit')->name('controleur.produits.validation');
     Route::view('/controleur/demandes', 'controleur_demandes')->name('controleur.demandes');
-    Route::view('/controleur/declaration/{id}','controleur.declaration-detail')->name('controleur.declaration.detail');
+    Route::get('/controleur/declaration/{id}', [App\Http\Controllers\ControleurController::class, 'showDeclaration'])->name('controleur.declaration.detail');
     Route::get('/controleur/demande/{id}', [App\Http\Controllers\ControleurController::class, 'showDemande'])->name('controleur.demande.show');
     Route::get('/controleur/produit/{id}/rejeter', [App\Http\Controllers\ControleurController::class, 'rejeterProduit'])->name('controleur.produit.rejeter');
 });
@@ -74,6 +74,9 @@ Route::get('/forgot-password', function() {
 Route::get('/commentaire', function() {
     return view('commentaire');
 })->name('commentaire');
+
+// Détails déclaration client
+Route::get('/client/declaration/{id}', [App\Http\Controllers\ClientController::class, 'showDeclaration'])->middleware('auth')->name('client.declaration.detail');
 
 
 require __DIR__.'/auth.php';
