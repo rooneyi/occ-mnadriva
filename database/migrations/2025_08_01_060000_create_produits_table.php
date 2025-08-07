@@ -8,6 +8,7 @@ return new class extends Migration {
     {
             Schema::create('produits', function (Blueprint $table) {
                 $table->id('id_produit');
+                $table->integer('quantite')->default(0);
                 $table->string('categorie_produit');
                 $table->string('nom_produit');
                 $table->text('description')->nullable();

@@ -9,10 +9,73 @@
         <input type="text" wire:model="categorie_produit" placeholder="Catégorie du produit" class="border rounded p-2 mb-2 w-full">
         <input type="text" wire:model="nom_produit" placeholder="Nom du produit" class="border rounded p-2 mb-2 w-full">
         <input type="text" wire:model="description_produit" placeholder="Description du produit" class="border rounded p-2 mb-2 w-full">
-        <input type="date" wire:model="date_fabrication" placeholder="Nom du produit" class="border rounded p-2 mb-2 w-full">
-        <input type="date" wire:model="date_expiration" placeholder="Description du produit" class="border rounded p-2 mb-2 w-full">
+        <input type="date" wire:model="date_fabrication" placeholder="Date de fabrication" class="border rounded p-2 mb-2 w-full">
+        <input type="date" wire:model="date_expiration" placeholder="Date d'expiration" class="border rounded p-2 mb-2 w-full">
+        <!-- Ajout du champ fichier et bouton d'extraction -->
+        <div class="mb-2">
+            <input type="file" id="photo_produit" accept="image/*" class="border rounded p-2 w-full">
+            <button type="button" id="extract-dates" class="bg-green-600 text-white px-4 py-2 rounded mt-2">Extraire les dates depuis la photo</button>
+            <span id="extract-status" class="ml-2 text-sm"></span>
+        </div>
         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Enregistrer</button>
     </form>
+    <script>
+        document.getElementById('extract-dates').addEventListener('click', function() {
+            const fileInput = document.getElementById('photo_produit');
+            const status = document.getElementById('extract-status');
+            status.textContent = '';
+            status.className = 'ml-2 text-sm';
+            if (fileInput.files.length === 0) {
+                status.textContent = 'Veuillez sélectionner une image.';
+                status.classList.add('text-red-600');
+                return;
+            }
+            status.textContent = 'Extraction en cours...';
+            status.classList.remove('text-red-600');
+            status.classList.add('text-blue-600');
+            const formData = new FormData();
+            formData.append('photo', fileInput.files[0]);
+            fetch('/extract-dates', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    status.textContent = 'Erreur : ' + data.error;
+                    status.classList.remove('text-blue-600');
+                    status.classList.add('text-red-600');
+                    return;
+                }
+                let found = false;
+                if (data.date_fabrication) {
+                    document.querySelector('input[wire\\:model="date_fabrication"]').value = data.date_fabrication;
+                    found = true;
+                }
+                if (data.date_expiration) {
+                    document.querySelector('input[wire\\:model="date_expiration"]').value = data.date_expiration;
+                    found = true;
+                }
+                if (found) {
+                    status.textContent = 'Dates extraites avec succès !';
+                    status.classList.remove('text-blue-600', 'text-red-600');
+                    status.classList.add('text-green-600');
+                } else {
+                    status.textContent = 'Aucune date trouvée.';
+                    status.classList.remove('text-blue-600');
+                    status.classList.add('text-yellow-600');
+                }
+            })
+            .catch(() => {
+                status.textContent = 'Erreur lors de l\'extraction des dates.';
+                status.classList.remove('text-blue-600');
+                status.classList.add('text-red-600');
+            });
+        });
+    </script>
 
     <h3 class="text-lg font-semibold mt-6 mb-2">Liste des produits</h3>
     <table class="min-w-full bg-white">
@@ -43,4 +106,3 @@
     </table>
 
 </div>
-

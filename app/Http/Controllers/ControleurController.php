@@ -6,6 +6,8 @@ use App\Models\Controleur;
 use App\Models\Declaration;
 use App\Models\Produit;
 use Illuminate\Support\Facades\Auth;
+use thiagoalessio\TesseractOCR\TesseractOCR;
+use Illuminate\Support\Str;
 
 class ControleurController extends Controller
 {
@@ -207,5 +209,36 @@ class ControleurController extends Controller
         $user = auth()->user();
         $notifications = $user->notifications()->latest()->get();
         return view('livewire.controleur.notifications', compact('notifications'));
+    }
+
+    // Extraction OCR des dates depuis une photo
+    public function extractDates(Request $request)
+    {
+        if (!$request->hasFile('photo')) {
+            return response()->json(['error' => 'Aucune image reçue.'], 400);
+        }
+        $photo = $request->file('photo');
+        $path = $photo->storeAs('ocr_temp', uniqid().'.'.$photo->getClientOriginalExtension(), 'public');
+        $fullPath = storage_path('app/public/'.$path);
+
+        // Lancer l'OCR
+        $ocr = new TesseractOCR($fullPath);
+        $text = $ocr->run();
+
+        // Extraction des dates (formats courants)
+        $dateFabrication = null;
+        $dateExpiration = null;
+        // Recherche de dates au format JJ/MM/AAAA ou JJ-MM-AAAA
+        if (preg_match_all('/(\d{2}[\/\-]\d{2}[\/\-]\d{4})/', $text, $matches)) {
+            $dateFabrication = $matches[1][0] ?? null;
+            $dateExpiration = $matches[1][1] ?? null;
+        }
+        // Nettoyage du fichier temporaire
+        @unlink($fullPath);
+
+        return response()->json([
+            'date_fabrication' => $dateFabrication,
+            'date_expiration' => $dateExpiration,
+        ]);
     }
 }

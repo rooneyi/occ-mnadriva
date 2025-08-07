@@ -21,17 +21,23 @@
         @csrf
         <div class="mb-4">
             <label class="block font-semibold mb-1">Produit :</label>
-            <select name="id_produit" id="produitSelect" class="border rounded p-2 w-full">
+            <select name="id_produit" id="produitSelect" class="border rounded p-2 w-full" required>
                 @foreach($produits as $produit)
                     <option value="{{ $produit->id_produit }}"
                         data-nom-produit="{{ $produit->nom_produit }}"
                         data-date-fabrication="{{ $produit->date_fabrication }}"
                         data-date-expiration="{{ $produit->date_expiration }}"
-                        data-declaration-id="{{ optional(optional($produit->declarations)->first())->id ?? '' }}">
+                        data-declaration-id="{{ optional($produit->declarations->first())->id_declaration ?? '' }}"
+                        data-declaration-date="{{ optional($produit->declarations->first())->date_soumission ?? '' }}"
+                        data-declaration-client="{{ optional($produit->declarations->first())->user->name ?? '' }}">
                         {{ $produit->nom_produit }} ({{ $produit->categorie_produit }})
                     </option>
                 @endforeach
             </select>
+            <div id="declarationDetails" class="mb-4 hidden">
+                <h2 class="font-semibold mb-2">Déclaration liée :</h2>
+                <div id="declarationInfo"></div>
+            </div>
         </div>
         <div class="mb-4">
             <label class="block font-semibold mb-1">Quantité :</label>
@@ -80,7 +86,24 @@
             const dateExpiration = selectedOption.getAttribute('data-date-expiration');
             dateFabricationInput.value = dateFabrication || '';
             dateExpirationInput.value = dateExpiration || '';
-            console.log('Champs préremplis:', {dateFabrication, dateExpiration});
+
+            // Affichage déclaration liée
+            const declarationId = selectedOption.getAttribute('data-declaration-id');
+            const declarationDate = selectedOption.getAttribute('data-declaration-date');
+            const declarationClient = selectedOption.getAttribute('data-declaration-client');
+            const declarationDiv = document.getElementById('declarationDetails');
+            const declarationInfo = document.getElementById('declarationInfo');
+            if (declarationId) {
+                declarationDiv.classList.remove('hidden');
+                declarationInfo.innerHTML = `
+                    <p><b>ID déclaration :</b> ${declarationId}</p>
+                    <p><b>Date soumission :</b> ${declarationDate}</p>
+                    <p><b>Client :</b> ${declarationClient}</p>
+                `;
+            } else {
+                declarationDiv.classList.add('hidden');
+                declarationInfo.innerHTML = '';
+            }
         }
 
         produitSelect.addEventListener('change', remplirChamps);

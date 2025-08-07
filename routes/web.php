@@ -78,5 +78,8 @@ Route::get('/commentaire', function() {
 // Détails déclaration client
 Route::get('/client/declaration/{id}', [App\Http\Controllers\ClientController::class, 'showDeclaration'])->middleware('auth')->name('client.declaration.detail');
 
+// Extraction OCR des dates depuis une photo (contrôleur)
+Route::post('/extract-dates', [App\Http\Controllers\ControleurController::class, 'extractDates'])->name('extract.dates');
+
 
 require __DIR__.'/auth.php';
