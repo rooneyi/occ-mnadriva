@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use App\Models\Controleur;
 use App\Models\Declaration;
 use App\Models\Produit;
+use App\Models\Action;
 use Illuminate\Support\Facades\Auth;
 use thiagoalessio\TesseractOCR\TesseractOCR;
 use Illuminate\Support\Str;
@@ -71,6 +72,13 @@ class ControleurController extends Controller
         $produit->quantite = $request->quantite;
         $produit->id_declaration = $demandeId;
         $produit->save();
+        // Log action
+        Action::create([
+            'user_id' => Auth::id(),
+            'user_type' => 'controleur',
+            'action' => 'ajout_produit',
+            'description' => 'Ajout du produit "' . $produit->designation . '" à la demande ' . $demandeId,
+        ]);
         return redirect()->route('controleur.demande.show', $demandeId)->with('success', 'Produit ajouté avec succès.');
     }
 
@@ -104,6 +112,13 @@ class ControleurController extends Controller
         $path = $request->file('photo')->store('produit_photos');
         $produit->photo = $path;
         $produit->save();
+        // Log action
+        Action::create([
+            'user_id' => Auth::id(),
+            'user_type' => 'controleur',
+            'action' => 'ajout_photo',
+            'description' => 'Ajout d\'une photo au produit ID ' . $produitId,
+        ]);
         return back()->with('success', 'Photo ajoutée.');
     }
 
@@ -116,6 +131,13 @@ class ControleurController extends Controller
         $produit = Produit::findOrFail($produitId);
         $produit->commentaire = $request->commentaire;
         $produit->save();
+        // Log action
+        Action::create([
+            'user_id' => Auth::id(),
+            'user_type' => 'controleur',
+            'action' => 'ajout_commentaire',
+            'description' => 'Ajout d\'un commentaire au produit ID ' . $produitId,
+        ]);
         return back()->with('success', 'Commentaire ajouté.');
     }
 
@@ -125,6 +147,13 @@ class ControleurController extends Controller
         $produit = Produit::findOrFail($produitId);
         $produit->statut = 'valide';
         $produit->save();
+        // Log action
+        Action::create([
+            'user_id' => Auth::id(),
+            'user_type' => 'controleur',
+            'action' => 'valider_produit',
+            'description' => 'Validation du produit ID ' . $produitId,
+        ]);
         return back()->with('success', 'Produit validé.');
     }
 
@@ -134,6 +163,13 @@ class ControleurController extends Controller
         $produit = Produit::findOrFail($produitId);
         $produit->statut = 'rejete';
         $produit->save();
+        // Log action
+        Action::create([
+            'user_id' => Auth::id(),
+            'user_type' => 'controleur',
+            'action' => 'rejeter_produit',
+            'description' => 'Rejet du produit ID ' . $produitId,
+        ]);
         return back()->with('success', 'Produit rejeté.');
     }
 

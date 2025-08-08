@@ -53,10 +53,14 @@
                 let found = false;
                 if (data.date_fabrication) {
                     document.querySelector('input[wire\\:model="date_fabrication"]').value = data.date_fabrication;
+                    // Déclenche l'événement input pour Livewire
+                    document.querySelector('input[wire\\:model="date_fabrication"]').dispatchEvent(new Event('input', { bubbles: true }));
                     found = true;
                 }
                 if (data.date_expiration) {
                     document.querySelector('input[wire\\:model="date_expiration"]').value = data.date_expiration;
+                    // Déclenche l'événement input pour Livewire
+                    document.querySelector('input[wire\\:model="date_expiration"]').dispatchEvent(new Event('input', { bubbles: true }));
                     found = true;
                 }
                 if (found) {

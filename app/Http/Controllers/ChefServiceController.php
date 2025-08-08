@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Dossier;
+use App\Models\Action;
 
 class ChefServiceController extends Controller
 {
@@ -20,7 +21,9 @@ class ChefServiceController extends Controller
         }
         $dossiers = $query->get();
         $statuts = Dossier::distinct()->pluck('statut');
-        return view('chefservice.dashboard', compact('dossiers', 'statuts'));
+        // Récupérer les dernières actions utilisateurs (historique)
+        $actions = Action::with('user')->latest()->limit(50)->get();
+        return view('chefservice.dashboard', compact('dossiers', 'statuts', 'actions'));
     }
 
     public function exportExcel(Request $request)

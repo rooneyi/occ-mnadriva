@@ -20,28 +20,35 @@
     <form method="POST" action="{{ route('laborantin.rapport.store') }}">
         @csrf
         <div class="mb-4">
-            <label class="block font-semibold mb-1">Produit :</label>
-            <select name="id_produit" id="produitSelect" class="border rounded p-2 w-full" required>
-                @foreach($produits as $produit)
-                    <option value="{{ $produit->id_produit }}"
-                        data-nom-produit="{{ $produit->nom_produit }}"
-                        data-date-fabrication="{{ $produit->date_fabrication }}"
-                        data-date-expiration="{{ $produit->date_expiration }}"
-                        data-declaration-id="{{ optional($produit->declarations->first())->id_declaration ?? '' }}"
-                        data-declaration-date="{{ optional($produit->declarations->first())->date_soumission ?? '' }}"
-                        data-declaration-client="{{ optional($produit->declarations->first())->user->name ?? '' }}">
-                        {{ $produit->nom_produit }} ({{ $produit->categorie_produit }})
+            <label class="block font-semibold mb-1">Déclaration :</label>
+            <select name="id_declaration" id="declarationSelect" class="border rounded p-2 w-full" required>
+                <option value="">Sélectionner une déclaration</option>
+                @foreach($declarations as $declaration)
+                    <option value="{{ $declaration->id_declaration }}"
+                        data-produit="{{ $declaration->produits->first()->nom_produit ?? '' }}"
+                        data-quantite="{{ $declaration->produits->first()->quantite ?? '' }}"
+                        data-date-fabrication="{{ $declaration->produits->first()->date_fabrication ?? '' }}"
+                        data-date-expiration="{{ $declaration->produits->first()->date_expiration ?? '' }}">
+                        #{{ $declaration->id_declaration }} - {{ $declaration->produits->first()->nom_produit ?? '' }} ({{ $declaration->date_soumission }})
                     </option>
                 @endforeach
             </select>
-            <div id="declarationDetails" class="mb-4 hidden">
-                <h2 class="font-semibold mb-2">Déclaration liée :</h2>
-                <div id="declarationInfo"></div>
-            </div>
+        </div>
+        <div class="mb-4">
+            <label class="block font-semibold mb-1">Produit :</label>
+            <input type="text" name="designation_produit" id="designation_produit" class="border rounded p-2 w-full" required>
         </div>
         <div class="mb-4">
             <label class="block font-semibold mb-1">Quantité :</label>
-            <input type="number" name="quantite" class="border rounded p-2 w-full" required>
+            <input type="number" name="quantite" id="quantite" class="border rounded p-2 w-full" required>
+        </div>
+        <div class="mb-4">
+            <label class="block font-semibold mb-1">Date de fabrication :</label>
+            <input type="date" name="date_fabrication" id="date_fabrication" class="border rounded p-2 w-full" required>
+        </div>
+        <div class="mb-4">
+            <label class="block font-semibold mb-1">Date d'expiration :</label>
+            <input type="date" name="date_expiration" id="date_expiration" class="border rounded p-2 w-full" required>
         </div>
         <div class="mb-4">
             <label class="block font-semibold mb-1">Code lab :</label>
@@ -60,59 +67,33 @@
             <textarea name="resultat_analyse" class="border rounded p-2 w-full" required></textarea>
         </div>
         <div class="mb-4">
-            <label class="block font-semibold mb-1">Date fabrication :</label>
-            <input type="date" name="date_fabrication" id="dateFabricationInput" class="border rounded p-2 w-full" required>
-        </div>
-        <div class="mb-4">
-            <label class="block font-semibold mb-1">Date expiration :</label>
-            <input type="date" name="date_expiration" id="dateExpirationInput" class="border rounded p-2 w-full">
-        </div>
-        <div class="mb-4">
             <label class="block font-semibold mb-1">Conclusion :</label>
             <textarea name="conclusion" class="border rounded p-2 w-full" required></textarea>
         </div>
         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Générer et soumettre le rapport</button>
-    </form>
-    @push('scripts')
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const produitSelect = document.getElementById('produitSelect');
-        const dateFabricationInput = document.getElementById('dateFabricationInput');
-        const dateExpirationInput = document.getElementById('dateExpirationInput');
-
-        function remplirChamps() {
-            const selectedOption = produitSelect.options[produitSelect.selectedIndex];
-            const dateFabrication = selectedOption.getAttribute('data-date-fabrication');
-            const dateExpiration = selectedOption.getAttribute('data-date-expiration');
-            dateFabricationInput.value = dateFabrication || '';
-            dateExpirationInput.value = dateExpiration || '';
-
-            // Affichage déclaration liée
-            const declarationId = selectedOption.getAttribute('data-declaration-id');
-            const declarationDate = selectedOption.getAttribute('data-declaration-date');
-            const declarationClient = selectedOption.getAttribute('data-declaration-client');
-            const declarationDiv = document.getElementById('declarationDetails');
-            const declarationInfo = document.getElementById('declarationInfo');
-            if (declarationId) {
-                declarationDiv.classList.remove('hidden');
-                declarationInfo.innerHTML = `
-                    <p><b>ID déclaration :</b> ${declarationId}</p>
-                    <p><b>Date soumission :</b> ${declarationDate}</p>
-                    <p><b>Client :</b> ${declarationClient}</p>
-                `;
-            } else {
-                declarationDiv.classList.add('hidden');
-                declarationInfo.innerHTML = '';
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const declarationSelect = document.getElementById('declarationSelect');
+            const designationProduit = document.getElementById('designation_produit');
+            const quantite = document.getElementById('quantite');
+            const dateFabrication = document.getElementById('date_fabrication');
+            const dateExpiration = document.getElementById('date_expiration');
+            declarationSelect.addEventListener('change', function() {
+                const selected = this.options[this.selectedIndex];
+                designationProduit.value = selected.getAttribute('data-produit') || '';
+                quantite.value = selected.getAttribute('data-quantite') || '';
+                dateFabrication.value = selected.getAttribute('data-date-fabrication') || '';
+                dateExpiration.value = selected.getAttribute('data-date-expiration') || '';
+            });
+            if (declarationSelect.value) {
+                const selected = declarationSelect.options[declarationSelect.selectedIndex];
+                designationProduit.value = selected.getAttribute('data-produit') || '';
+                quantite.value = selected.getAttribute('data-quantite') || '';
+                dateFabrication.value = selected.getAttribute('data-date-fabrication') || '';
+                dateExpiration.value = selected.getAttribute('data-date-expiration') || '';
             }
-        }
-
-        produitSelect.addEventListener('change', remplirChamps);
-        // Préremplir au chargement si un produit est sélectionné
-        if (produitSelect.selectedIndex > -1) {
-            remplirChamps();
-        }
-    });
-    </script>
-    @endpush
+        });
+        </script>
+    </form>
 </div>
 @endsection

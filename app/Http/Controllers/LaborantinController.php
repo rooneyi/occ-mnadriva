@@ -27,6 +27,7 @@ class LaborantinController extends Controller
     public function storeRapport(Request $request)
     {
         $request->validate([
+            'id_declaration' => 'required|integer|exists:declarations,id_declaration',
             'designation_produit' => 'required|string',
             'quantite' => 'required|numeric',
             'methode_essai' => 'required|string',
@@ -38,8 +39,8 @@ class LaborantinController extends Controller
         ]);
         $laborantin = Auth::user();
         $rapport = \App\Models\RapportAnalyse::create([
-            'id_laborantin' => Auth::user()->id, // Utilise l'id de l'utilisateur connecté
-            'code_lab' => $request->code_lab,
+            'id_declaration' => $request->id_declaration,
+            'id_laborantin' => $laborantin->id_laborantin ?? $laborantin->id,
             'designation_produit' => $request->designation_produit,
             'quantite' => $request->quantite,
             'methode_essai' => $request->methode_essai,
@@ -71,15 +72,10 @@ class LaborantinController extends Controller
     {
         $laborantin = Auth::user();
         $analyses = \App\Models\RapportAnalyse::where('id_laborantin', $laborantin->id)->latest()->get();
-        // Récupérer uniquement les produits sur lesquels le laborantin a soumis une déclaration
-        $produits = \App\Models\Produit::whereIn('id_produit', function($query) use ($laborantin) {
+        // Récupérer uniquement les produits liés à des déclarations (plus de filtre sur id_laborantin)
+        $produits = \App\Models\Produit::whereIn('id_produit', function($query) {
             $query->select('id_produit')
-                ->from('declaration_produit')
-                ->whereIn('id_declaration', function($q) use ($laborantin) {
-                    $q->select('id_declaration')
-                        ->from('declarations')
-                        ->where('id_laborantin', $laborantin->id);
-                });
+                ->from('declaration_produit');
         })->get();
         return view('laborantin.dashboard', compact('analyses', 'produits'));
     }

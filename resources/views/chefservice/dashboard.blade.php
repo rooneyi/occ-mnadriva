@@ -54,5 +54,36 @@
             </div>
         @endif
     </div>
+    <div class="bg-white rounded-lg shadow p-6 mt-6">
+        <h3 class="text-xl font-bold text-blue-900 mb-4">Historique des actions utilisateurs</h3>
+        @if($actions->isEmpty())
+            <div class="bg-yellow-50 text-blue-900 p-4 rounded mb-4">Aucune action enregistrée.</div>
+        @else
+            <div class="overflow-x-auto mb-6">
+                <table class="min-w-full divide-y divide-blue-200">
+                    <thead class="bg-blue-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-sm font-bold text-blue-900">Date</th>
+                            <th class="px-4 py-2 text-left text-sm font-bold text-blue-900">Utilisateur</th>
+                            <th class="px-4 py-2 text-left text-sm font-bold text-blue-900">Type</th>
+                            <th class="px-4 py-2 text-left text-sm font-bold text-blue-900">Action</th>
+                            <th class="px-4 py-2 text-left text-sm font-bold text-blue-900">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-blue-100">
+                        @foreach($actions as $action)
+                        <tr>
+                            <td class="px-4 py-2">{{ $action->created_at->format('d/m/Y H:i') }}</td>
+                            <td class="px-4 py-2">{{ $action->user ? ($action->user->name ?? 'Utilisateur #'.$action->user_id) : 'Utilisateur #'.$action->user_id }}</td>
+                            <td class="px-4 py-2">{{ ucfirst($action->user_type) }}</td>
+                            <td class="px-4 py-2">{{ str_replace('_', ' ', $action->action) }}</td>
+                            <td class="px-4 py-2">{{ $action->description }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </div>
 </div>
 @endsection
