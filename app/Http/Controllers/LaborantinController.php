@@ -29,6 +29,7 @@ class LaborantinController extends Controller
         $request->validate([
             'id_declaration' => 'required|integer|exists:declarations,id_declaration',
             'designation_produit' => 'required|string',
+            'code_lab' => 'nullable|string|max:255',
             'quantite' => 'required|numeric',
             'methode_essai' => 'required|string',
             'aspect_exterieur' => 'required|string',
@@ -43,6 +44,7 @@ class LaborantinController extends Controller
             'id_laborantin' => $laborantin->id_laborantin ?? $laborantin->id,
             'designation_produit' => $request->designation_produit,
             'quantite' => $request->quantite,
+            'code_lab' => $request->code_lab ?? 'LAB-'.date('YmdHis'),
             'methode_essai' => $request->methode_essai,
             'aspect_exterieur' => $request->aspect_exterieur,
             'resultat_analyse' => $request->resultat_analyse,

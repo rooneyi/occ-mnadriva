@@ -52,7 +52,7 @@
         </div>
         <div class="mb-4">
             <label class="block font-semibold mb-1">Code lab :</label>
-            <input type="text" name="code_lab" class="border rounded p-2 w-full" required>
+            <input type="text" name="code_lab" value="test" class="border rounded p-2 w-full" required>
         </div>
         <div class="mb-4">
             <label class="block font-semibold mb-1">Méthode d'essai :</label>
