@@ -53,9 +53,10 @@ class LaborantinController extends Controller
             'conclusion' => $request->conclusion,
         ]);
         // Génération automatique du rapport PDF (optionnel)
-        // Notifier le contrôleur pour validation
-        $controleur = \App\Models\User::where('role', 'controleur')->first();
-        if ($controleur) {
+
+        // Notifier tous les contrôleurs pour validation
+        $controleurs = \App\Models\User::where('role', 'controleur')->get();
+        foreach ($controleurs as $controleur) {
             $controleur->notify(new \App\Notifications\AnalyseSubmitted($rapport));
         }
         return redirect()->route('laborantin.historique')->with('success', 'Rapport généré pour le produit ' . ($produit->nom_produit ?? '') . ' et soumis au contrôleur.');
