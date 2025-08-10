@@ -20,7 +20,8 @@ class ClientDeclarationSubmitted extends Notification
 
     public function via($notifiable)
     {
-        return ['mail', 'database'];
+        // Désactiver l'envoi d'email, conserver uniquement la notification en base
+        return ['database'];
     }
 
     public function toArray($notifiable)

@@ -42,8 +42,7 @@ class DeclarationForm extends Component
         }
 
         // Normaliser les IDs sélectionnés et construire les données pivot AVANT toute création
-        \Log::info('DEBUG selectedProduits', $this->selectedProduits);
-        \Log::info('DEBUG quantites', $this->quantites);
+        
 
         $pivotData = [];
         $missing = [];

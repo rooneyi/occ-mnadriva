@@ -2,6 +2,16 @@
 
 @section('content')
 <div class="container mx-auto py-8">
+    @if (session('success'))
+        <div class="mb-4 p-4 rounded bg-green-100 border border-green-400 text-green-800">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="mb-4 p-4 rounded bg-red-100 border border-red-400 text-red-800">
+            {{ session('error') }}
+        </div>
+    @endif
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold mb-6">Mon Dossier</h1>
         <a href="{{ route('client.notifications') }}" class="relative inline-block px-4 py-2 text-blue-900 border border-blue-900 rounded-lg hover:bg-blue-900 hover:text-white transition">
