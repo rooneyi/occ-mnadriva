@@ -85,5 +85,43 @@
             </div>
         @endif
     </div>
+    <div class="bg-white rounded-lg shadow p-6 mt-6">
+        <h3 class="text-xl font-bold text-blue-900 mb-4">Trafic des dossiers (30 derniers jours)</h3>
+        <canvas id="trafficChart" height="80"></canvas>
+    </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const trafficStats = @json($trafficStats);
+    const labels = trafficStats.map(item => item.date);
+    const data = trafficStats.map(item => item.count);
+    const ctx = document.getElementById('trafficChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Dossiers créés',
+                data: data,
+                borderColor: '#2563eb',
+                backgroundColor: 'rgba(37,99,235,0.1)',
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: true }
+            },
+            scales: {
+                x: { title: { display: true, text: 'Date' } },
+                y: { title: { display: true, text: 'Nombre de dossiers' }, beginAtZero: true }
+            }
+        }
+    });
+</script>
+@endpush

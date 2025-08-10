@@ -8,24 +8,25 @@
     @endif
     <form wire:submit.prevent="submit" class="space-y-5">
         <div>
-            <label for="designation_produit" class="block font-semibold mb-1">Désignation du produit</label>
-            <select id="designation_produit" wire:model="designation_produit" class="w-full px-4 py-2 border border-blue-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-300">
-                <option value="">-- Sélectionner un produit --</option>
+            <label class="block font-semibold mb-1">Produits et quantités</label>
+            <div class="space-y-2">
                 @foreach($produits as $produit)
-                    <option value="{{ $produit->nom_produit }}">
-                        {{ $produit->nom_produit }} ({{ $produit->categorie_produit }})
-                        @if($produit->description)
-                            - {{ $produit->description }}
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="produit_{{ $produit->id }}" wire:model="selectedProduits" value="{{ $produit->id }}">
+                        <label for="produit_{{ $produit->id }}" class="flex-1">
+                            {{ $produit->nom_produit }} ({{ $produit->categorie_produit }})
+                            @if($produit->description)
+                                - {{ $produit->description }}
+                            @endif
+                        </label>
+                        @if(in_array($produit->id, (array) $selectedProduits))
+                            <input type="number" min="1" wire:model="quantites.{{ $produit->id }}" placeholder="Quantité" class="w-24 px-2 py-1 border border-blue-900 rounded">
                         @endif
-                    </option>
+                    </div>
                 @endforeach
-            </select>
-            @error('designation_produit') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
-        </div>
-        <div>
-            <label for="quantiter" class="block font-semibold mb-1">Quantité</label>
-            <input type="number" id="quantiter" wire:model="quantiter" class="w-full px-4 py-2 border border-blue-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-300" min="1">
-            @error('quantiter') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
+            </div>
+            @error('selectedProduits') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
+            @error('quantites') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
         </div>
         <div>
             <label for="unite" class="block font-semibold mb-1">Unité</label>

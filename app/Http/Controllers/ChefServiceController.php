@@ -23,7 +23,13 @@ class ChefServiceController extends Controller
         $statuts = Dossier::distinct()->pluck('statut');
         // Récupérer les dernières actions utilisateurs (historique)
         $actions = Action::with('user')->latest()->limit(50)->get();
-        return view('chefservice.dashboard', compact('dossiers', 'statuts', 'actions'));
+        // Statistiques de trafic : nombre de dossiers créés par jour (30 derniers jours)
+        $trafficStats = Dossier::selectRaw('DATE(created_at) as date, COUNT(*) as count')
+            ->where('created_at', '>=', now()->subDays(30))
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+        return view('chefservice.dashboard', compact('dossiers', 'statuts', 'actions', 'trafficStats'));
     }
 
     public function exportExcel(Request $request)

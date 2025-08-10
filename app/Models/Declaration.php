@@ -10,14 +10,13 @@ class Declaration extends Model
     protected $primaryKey = 'id_declaration';
     protected $fillable = [
         'user_id',
-        'designation_produit',
-        'quantiter',
+        'id_controleur',
         'unite',
         'numero_impot',
         'date_soumission',
         'fichier',
         'statut',
-        'id_controleur', // Ajouté pour l'assignation au contrôleur
+        'user_id_controleur',
     ];
     // Si besoin d'un lien avec l'utilisateur (client)
     public function user()
@@ -26,7 +25,8 @@ class Declaration extends Model
     }
     public function produits()
     {
-        return $this->belongsToMany(Produit::class, 'declaration_produit', 'id_declaration', 'id_produit');
+        // On ajoute 'quantite' dans la table pivot si besoin
+        return $this->belongsToMany(Produit::class, 'declaration_produit', 'id_declaration', 'id_produit')->withPivot('quantite');
     }
     public function rapports()
     {

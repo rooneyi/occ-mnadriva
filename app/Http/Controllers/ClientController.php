@@ -64,77 +64,91 @@ class ClientController extends Controller
                 ->with('error', 'Veuillez vous connecter pour accéder à votre tableau de bord.');
         }
 
-        // Créer la déclaration
-        $controleur = \App\Models\User::where('role', 'controleur')->first();
-        $declaration = Declaration::create([
-            'id_client'       => $client->id_client,
-            'id_declaration' => $request->id_declaration,
-            'unite'           => $request->unite,
-            'numero_import'   => $request->numero_import,
-            'date_soumission' => now(),
-            'statut'          => 'en_attente',
-            'user_id'         => Auth::id(),
-            'user_id_controleur' => $controleur ? $controleur->id : null,
-        ]);
+        try {
+            // Créer la déclaration
+            $controleur = \App\Models\User::where('role', 'controleur')->first();
+            $declaration = Declaration::create([
+                'id_client'       => $client->id_client,
+                'id_declaration' => $request->id_declaration,
+                'unite'           => $request->unite,
+                'numero_import'   => $request->numero_import,
+                'date_soumission' => now(),
+                'statut'          => 'en_attente',
+                'user_id'         => Auth::id(),
+                'user_id_controleur' => $controleur ? $controleur->id : null,
+            ]);
+            if (!$declaration) {
+                return back()->withInput()->with('error', "Erreur lors de la création de la déclaration.");
+            }
 
-        // Lier les produits
-        // Débogage : journaliser les IDs des produits transmis
-        \Log::info('Produits transmis pour la déclaration :', $request->produits);
+            // Lier les produits à la déclaration
+            if (!empty($request->produits)) {
+                $produitIds = array_filter($request->produits, function ($id) {
+                    return is_numeric($id);
+                });
+                if (empty($produitIds)) {
+                    return back()->withInput()->with('error', "Aucun produit valide sélectionné.");
+                }
+                $declaration->produits()->sync($produitIds);
+            } else {
+                return back()->withInput()->with('error', "Aucun produit sélectionné.");
+            }
 
-        // Vérifier et synchroniser les produits avec la déclaration
-        if (!empty($request->produits)) {
-            $produitIds = array_filter($request->produits, function ($id) {
-                return is_numeric($id);
-            });
-            \Log::info('Produits après filtrage :', $produitIds);
-            $declaration->produits()->sync($produitIds);
-        }
+            // Créer un dossier et lier la déclaration
+            $dossier = \App\Models\Dossier::create([
+                'nom_dossier' => 'Dossier de ' . ($client->name ?? $client->nom ?? 'Client') . ' - ' . now()->format('d/m/Y H:i'),
+                'statut' => 'en_attente',
+            ]);
+            if (!$dossier) {
+                return back()->withInput()->with('error', "Erreur lors de la création du dossier.");
+            }
+            $dossier->declarations()->attach($declaration->id_declaration);
 
-        // Joindre le document si fourni
-        if ($request->hasFile('document')) {
-            $path = $request->file('document')->store('documents');
-            // Vérifie que tu as bien une méthode joindreDocument() dans ton modèle Declaration
-            $declaration->joindreDocument($path);
-        }
+            // Joindre le document si fourni
+            if ($request->hasFile('document')) {
+                $path = $request->file('document')->store('documents');
+                $declaration->joindreDocument($path);
+            }
 
-        // Charger les produits associés à la déclaration
-        $declaration->load('produits');
+            // Charger les produits associés à la déclaration
+            $declaration->load('produits');
 
-        // Préparer la liste des produits pour la notification
-        $produitsNotif = $declaration->produits->map(function($produit) {
-            return [
-                'nom_produit' => $produit->nom_produit,
-                'quantite' => $produit->quantite,
-            ];
-        })->toArray();
+            // Préparer la liste des produits pour la notification
+            $produitsNotif = $declaration->produits->map(function($produit) {
+                return [
+                    'nom_produit' => $produit->nom_produit,
+                    'quantite' => $produit->quantite,
+                ];
+            })->toArray();
 
-        // Notifier le client avec tous les produits soumis
-        $client->notify(new \App\Notifications\ClientDeclarationSubmitted([
-            'id_declaration' => $declaration->id_declaration,
-            'statut' => $declaration->statut,
-            'produits' => $produitsNotif,
-        ]));
-
-        // Notifier le contrôleur avec tous les produits
-        if ($controleur) {
-            $controleur->notify(new \App\Notifications\ControleurDeclarationNotification([
-                'id' => $declaration->id_declaration,
+            // Notifier le client avec tous les produits soumis
+            $client->notify(new \App\Notifications\ClientDeclarationSubmitted([
+                'id_declaration' => $declaration->id_declaration,
                 'statut' => $declaration->statut,
                 'produits' => $produitsNotif,
             ]));
+
+            // Notifier le contrôleur avec tous les produits
+            if ($controleur) {
+                $controleur->notify(new \App\Notifications\ControleurDeclarationNotification([
+                    'id' => $declaration->id_declaration,
+                    'statut' => $declaration->statut,
+                    'produits' => $produitsNotif,
+                ]));
+            }
+
+            // Charger les déclarations associées au client
+            $declarations = Declaration::where('user_id', $client->id)
+                ->with('produits')
+                ->latest()
+                ->get();
+
+            // Retourner directement à la vue du tableau de bord avec les déclarations
+            return redirect()->route('client.dashboard')->with('success', 'Déclaration soumise avec succès.');
+        } catch (\Exception $e) {
+            \Log::error('Erreur lors de la soumission de la déclaration : ' . $e->getMessage());
+            return back()->withInput()->with('error', "Une erreur s'est produite lors de la soumission de la déclaration.");
         }
-
-        // Charger les déclarations associées au client
-        $declarations = Declaration::where('user_id', $client->id)
-            ->with('produits')
-            ->latest()
-            ->get();
-
-        // Retourner directement à la vue du tableau de bord avec les déclarations
-        return view('client.dashboard', [
-            'client' => $client,
-            'declarations' => $declarations,
-        ]);
     }
 
     /**

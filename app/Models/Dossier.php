@@ -11,6 +11,7 @@ class Dossier extends Model
     protected $primaryKey = 'id_dossier';
     protected $fillable = [
         'nom_dossier',
+        'statut',
     ];
     public function declarations()
     {
@@ -21,4 +22,3 @@ class Dossier extends Model
         return $this->belongsToMany(RapportAnalyse::class, 'dossier_rapport_analyse', 'id_dossier', 'id_rapport');
     }
 }
-
