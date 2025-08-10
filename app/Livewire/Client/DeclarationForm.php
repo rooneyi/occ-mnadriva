@@ -81,7 +81,9 @@ class DeclarationForm extends Component
             'numero_impot' => $this->numero_impot,
             'date_soumission' => now(),
             'statut' => 'en_attente',
+            // Conserver id_controleur si utilisé ailleurs, mais surtout remplir user_id_controleur
             'id_controleur' => $this->id_controleur,
+            'user_id_controleur' => $this->id_controleur,
             'fichier' => $fichierPath,
         ]);
 

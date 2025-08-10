@@ -16,13 +16,11 @@ class ControleurController extends Controller
     public function dashboard()
     {
         $controleur = Auth::user();
-        // Afficher toutes les demandes, même celles non encore assignées
-        $demandes = \App\Models\Declaration::where(function($query) use ($controleur) {
-            $query->where('id_controleur', $controleur->id_controleur)
-                  ->orWhereNull('id_controleur');
-        })
-        ->with('produits')
-        ->get();
+        // Afficher uniquement les demandes assignées au contrôleur connecté
+        $demandes = Declaration::where('user_id_controleur', $controleur->id)
+            ->with(['produits', 'client'])
+            ->latest()
+            ->get();
         return view('controleur.dashboard', compact('demandes'));
     }
 

@@ -13,7 +13,7 @@ class Demandes extends Component
     {
         $user = Auth::user();
         // Récupère les demandes assignées au contrôleur connecté
-        $this->demandes = Declaration::where('controleur_id', $user->id)->get();
+        $this->demandes = Declaration::where('user_id_controleur', $user->id)->get();
     }
 
     public function render()
