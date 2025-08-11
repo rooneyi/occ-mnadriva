@@ -36,7 +36,13 @@ class ChefServiceController extends Controller
             ->groupBy('date')
             ->orderBy('date')
             ->get();
-        return view('chefservice.dashboard', compact('dossiers', 'statuts', 'actions', 'trafficStats'));
+        // Dernières déclarations soumises (visibilité directe)
+        $recentDeclarations = \App\Models\Declaration::with(['client', 'produits'])
+            ->latest()
+            ->limit(20)
+            ->get();
+
+        return view('chefservice.dashboard', compact('dossiers', 'statuts', 'actions', 'trafficStats', 'recentDeclarations'));
     }
 
     public function exportExcel(Request $request)

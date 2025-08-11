@@ -3,6 +3,7 @@ namespace App\Livewire\Client;
 
 use App\Models\Declaration;
 use App\Models\Produit;
+use App\Models\Action;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -89,6 +90,14 @@ class DeclarationForm extends Component
 
         // Associer les produits avec leurs quantités
         $declaration->produits()->sync($pivotData);
+
+        // Journaliser l'action pour visibilité Chef de service
+        Action::create([
+            'user_id' => $user->id,
+            'user_type' => 'client',
+            'action' => 'soumission_declaration',
+            'description' => 'Déclaration #'.$declaration->id_declaration.' soumise avec '.count($pivotData).' produit(s).',
+        ]);
 
         session()->flash('success', 'Déclaration soumise avec succès.');
         $this->reset(['selectedProduits', 'quantites', 'unite', 'numero_impot', 'fichier', 'id_controleur']);

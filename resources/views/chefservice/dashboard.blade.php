@@ -26,6 +26,56 @@
         <a href="{{ route('chefservice.export', request()->all()) }}" class="px-4 py-2 rounded bg-green-600 text-white font-semibold hover:bg-green-800 transition">Exporter Excel</a>
     </form>
     <div class="bg-white rounded-lg shadow p-6 mt-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-blue-900">Dernières déclarations</h3>
+            <a href="#actions-histo" class="text-sm text-blue-900 hover:underline">Voir l'historique des autres actions</a>
+        </div>
+        @if(($recentDeclarations ?? collect())->isEmpty())
+            <div class="bg-yellow-50 text-blue-900 p-4 rounded mb-4">Aucune déclaration récente.</div>
+        @else
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-blue-200">
+                    <thead class="bg-blue-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-sm font-bold text-blue-900">ID</th>
+                            <th class="px-4 py-2 text-left text-sm font-bold text-blue-900">Client</th>
+                            <th class="px-4 py-2 text-left text-sm font-bold text-blue-900">Date</th>
+                            <th class="px-4 py-2 text-left text-sm font-bold text-blue-900">Statut</th>
+                            <th class="px-4 py-2 text-left text-sm font-bold text-blue-900">Produits (Qté, Dates)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-blue-100">
+                        @foreach($recentDeclarations as $decl)
+                        <tr>
+                            <td class="px-4 py-2">{{ $decl->id_declaration }}</td>
+                            <td class="px-4 py-2">{{ $decl->client->name ?? '-' }}</td>
+                            <td class="px-4 py-2">{{ $decl->created_at->format('d/m/Y') }}</td>
+                            <td class="px-4 py-2">{{ $decl->statut }}</td>
+                            <td class="px-4 py-2">
+                                @if($decl->produits->isEmpty())
+                                    <span>-</span>
+                                @else
+                                    <ul class="list-disc ml-5 space-y-1">
+                                        @foreach($decl->produits as $p)
+                                            <li>
+                                                <span class="font-semibold">{{ $p->nom_produit ?? 'Produit' }}</span>
+                                                <span class="text-sm">(Qté: {{ $p->pivot->quantite ?? '-' }})</span>
+                                                <div class="text-xs text-blue-900">
+                                                    Fab: {{ $p->date_fabrication ? \Carbon\Carbon::parse($p->date_fabrication)->format('d/m/Y') : '-' }}
+                                                    | Exp: {{ $p->date_expiration ? \Carbon\Carbon::parse($p->date_expiration)->format('d/m/Y') : '-' }}
+                                                </div>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </div>
         <h3 class="text-xl font-bold text-blue-900 mb-4">Vue d'ensemble des dossiers</h3>
         @if($dossiers->isEmpty())
             <div class="bg-yellow-50 text-blue-900 p-4 rounded mb-4">Aucun dossier trouvé.</div>
@@ -65,7 +115,7 @@
             </div>
         @endif
     </div>
-    <div class="bg-white rounded-lg shadow p-6 mt-6">
+    <div id="actions-histo" class="bg-white rounded-lg shadow p-6 mt-6">
         <h3 class="text-xl font-bold text-blue-900 mb-4">Historique des actions utilisateurs</h3>
         @if($actions->isEmpty())
             <div class="bg-yellow-50 text-blue-900 p-4 rounded mb-4">Aucune action enregistrée.</div>
