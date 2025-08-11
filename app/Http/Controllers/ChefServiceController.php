@@ -21,8 +21,15 @@ class ChefServiceController extends Controller
         }
         $dossiers = $query->get();
         $statuts = Dossier::distinct()->pluck('statut');
-        // Récupérer les dernières actions utilisateurs (historique)
-        $actions = Action::with('user')->latest()->limit(50)->get();
+        // Récupérer l'historique des actions, avec filtres et pagination
+        $actionsQuery = Action::with('user')->latest();
+        if ($request->filled('type')) {
+            $actionsQuery->where('user_type', $request->type);
+        }
+        if ($request->filled('action_key')) {
+            $actionsQuery->where('action', 'like', '%'.$request->action_key.'%');
+        }
+        $actions = $actionsQuery->paginate(50)->appends($request->all());
         // Statistiques de trafic : nombre de dossiers créés par jour (30 derniers jours)
         $trafficStats = Dossier::selectRaw('DATE(created_at) as date, COUNT(*) as count')
             ->where('created_at', '>=', now()->subDays(30))

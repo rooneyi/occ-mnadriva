@@ -11,6 +11,14 @@
                 <option value="{{ $statut }}" @if(request('statut')==$statut) selected @endif>{{ $statut }}</option>
             @endforeach
         </select>
+        <select name="type" class="px-4 py-2 rounded border border-blue-200 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 flex-1">
+            <option value="">Tous types</option>
+            <option value="client" @selected(request('type')==='client')>Client</option>
+            <option value="controleur" @selected(request('type')==='controleur')>Contrôleur</option>
+            <option value="chef_service" @selected(request('type')==='chef_service')>Chef de service</option>
+            <option value="laborantin" @selected(request('type')==='laborantin')>Laborantin</option>
+        </select>
+        <input type="text" name="action_key" value="{{ request('action_key') }}" class="px-4 py-2 rounded border border-blue-200 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 flex-1" placeholder="Filtrer par action (mot-clé)">
         <div class="flex gap-2 items-center">
             <button class="px-4 py-2 rounded bg-blue-900 text-white font-semibold hover:bg-yellow-500 hover:text-blue-900 transition" type="submit">Filtrer</button>
             <a href="{{ route('chefservice.dashboard') }}" class="px-4 py-2 rounded bg-yellow-100 text-blue-900 font-semibold hover:bg-yellow-200 transition">Réinitialiser</a>
@@ -51,6 +59,9 @@
                         @endforeach
                     </tbody>
                 </table>
+                <div class="mt-4">
+                    {{ $actions->links() }}
+                </div>
             </div>
         @endif
     </div>

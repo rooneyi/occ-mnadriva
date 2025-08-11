@@ -12,15 +12,15 @@
             <div class="space-y-2">
                 @foreach($produits as $produit)
                     <div class="flex items-center gap-2">
-                        <input type="checkbox" id="produit_{{ $produit->id }}" wire:model="selectedProduits" value="{{ $produit->id }}">
-                        <label for="produit_{{ $produit->id }}" class="flex-1">
+                        <input type="checkbox" id="produit_{{ $produit->id_produit }}" wire:model="selectedProduits" value="{{ $produit->id_produit }}">
+                        <label for="produit_{{ $produit->id_produit }}" class="flex-1">
                             {{ $produit->nom_produit }} ({{ $produit->categorie_produit }})
                             @if($produit->description)
                                 - {{ $produit->description }}
                             @endif
                         </label>
-                        @if(in_array($produit->id, (array) $selectedProduits))
-                            <input type="number" min="1" wire:model="quantites.{{ $produit->id }}" placeholder="Quantité" class="w-24 px-2 py-1 border border-blue-900 rounded">
+                        @if(in_array($produit->id_produit, (array) $selectedProduits))
+                            <input type="number" min="1" wire:model="quantites.{{ $produit->id_produit }}" placeholder="Quantité" class="w-24 px-2 py-1 border border-blue-900 rounded">
                         @endif
                     </div>
                 @endforeach
