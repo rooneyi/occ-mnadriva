@@ -19,9 +19,11 @@
             <!-- Champ de téléchargement de fichier -->
             <div class="mb-2">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Télécharger une photo</label>
-                <input type="file" id="photo_produit" accept="image/*" capture="environment" 
-                       wire:model="photo" class="border rounded p-2 w-full">
-                <p class="text-xs text-gray-500 mt-1">Sur mobile, utilisez l'appareil photo pour une capture directe.</p>
+          <input type="file" id="photo_produit" accept="image/*" capture="environment" 
+              wire:model="photo" class="border rounded p-2 w-full" 
+              onchange="document.getElementById('extract-status').textContent='Extraction en cours...';">
+          <span id="extract-status" class="ml-2 text-sm"></span>
+          <p class="text-xs text-gray-500 mt-1">Sur mobile, utilisez l'appareil photo pour une capture directe.</p>
             </div>
             
             <!-- Affichage des résultats OCR -->

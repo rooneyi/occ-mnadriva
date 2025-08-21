@@ -1,3 +1,5 @@
+// Formulaire d'analyse laboratoire prérempli
+Route::get('/laborantin/analyse', [App\Http\Controllers\LaborantinController::class, 'showAnalyseForm'])->name('laborantin.analyse.form');
 <?php
 
 use Illuminate\Support\Facades\Route;

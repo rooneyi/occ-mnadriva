@@ -24,11 +24,7 @@
             <select name="id_declaration" id="declarationSelect" class="border rounded p-2 w-full" required>
                 <option value="">Sélectionner une déclaration</option>
                 @foreach($declarations as $declaration)
-                    <option value="{{ $declaration->id_declaration }}"
-                        data-produit="{{ $declaration->produits->first()->nom_produit ?? '' }}"
-                        data-quantite="{{ $declaration->produits->first()->quantite ?? '' }}"
-                        data-date-fabrication="{{ $declaration->produits->first()->date_fabrication ?? '' }}"
-                        data-date-expiration="{{ $declaration->produits->first()->date_expiration ?? '' }}">
+                    <option value="{{ $declaration->id_declaration }}" @if(isset($preselectedDeclaration) && $preselectedDeclaration->id_declaration == $declaration->id_declaration) selected @endif>
                         #{{ $declaration->id_declaration }} - {{ $declaration->produits->first()->nom_produit ?? '' }} ({{ $declaration->date_soumission }})
                     </option>
                 @endforeach
@@ -36,19 +32,19 @@
         </div>
         <div class="mb-4">
             <label class="block font-semibold mb-1">Produit :</label>
-            <input type="text" name="designation_produit" id="designation_produit" class="border rounded p-2 w-full" required>
+            <input type="text" name="designation_produit" id="designation_produit" class="border rounded p-2 w-full" required value="{{ $preselectedProduit->nom_produit ?? $preselectedProduit->designation ?? $preselectedProduit->designation_produit ?? '' }}">
         </div>
         <div class="mb-4">
             <label class="block font-semibold mb-1">Quantité :</label>
-            <input type="number" name="quantite" id="quantite" class="border rounded p-2 w-full" required>
+            <input type="number" name="quantite" id="quantite" class="border rounded p-2 w-full" required value="{{ $preselectedProduit->quantite ?? '' }}">
         </div>
         <div class="mb-4">
             <label class="block font-semibold mb-1">Date de fabrication :</label>
-            <input type="date" name="date_fabrication" id="date_fabrication" class="border rounded p-2 w-full" required>
+            <input type="date" name="date_fabrication" id="date_fabrication" class="border rounded p-2 w-full" required value="{{ $preselectedProduit->date_fabrication ?? '' }}">
         </div>
         <div class="mb-4">
             <label class="block font-semibold mb-1">Date d'expiration :</label>
-            <input type="date" name="date_expiration" id="date_expiration" class="border rounded p-2 w-full" required>
+            <input type="date" name="date_expiration" id="date_expiration" class="border rounded p-2 w-full" required value="{{ $preselectedProduit->date_expiration ?? '' }}">
         </div>
         <div class="mb-4">
             <label class="block font-semibold mb-1">Code lab :</label>

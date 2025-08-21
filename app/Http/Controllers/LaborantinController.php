@@ -18,10 +18,18 @@ class LaborantinController extends Controller
         $declarations = \App\Models\Declaration::with('produits', 'client')->get();
         $produits = collect();
         if ($declarations->count() > 0) {
-            // On récupère tous les produits liés aux déclarations sélectionnées (évite doublons)
             $produits = $declarations->flatMap->produits->unique('id_produit');
         }
-        return view('laborantin.analyse-form', compact('declarations', 'produits'));
+        // Préremplir si produit_id et declaration_id sont fournis
+        $preselectedProduit = null;
+        $preselectedDeclaration = null;
+        if (request()->has('produit_id')) {
+            $preselectedProduit = \App\Models\Produit::find(request('produit_id'));
+        }
+        if (request()->has('declaration_id')) {
+            $preselectedDeclaration = \App\Models\Declaration::find(request('declaration_id'));
+        }
+        return view('laborantin.analyse-form', compact('declarations', 'produits', 'preselectedProduit', 'preselectedDeclaration'));
     }
 
     // Enregistre et génère le rapport d'analyse, puis le soumet au contrôleur

@@ -46,22 +46,46 @@ class AjouterProduit extends Component
     #[On('photo-uploaded')]
     public function processPhoto($tempPath)
     {
-        $ocrService = new OcrService();
+        $ocrService = new OcrService(new \App\Services\YoloService());
         $this->extractedText = $ocrService->extractTextFromImage(storage_path('app/livewire-tmp/' . basename($tempPath)));
-        
-        if ($this->extractedText) {
-            $this->detectedDate = $ocrService->extractDateFromText($this->extractedText);
-            if ($this->detectedDate) {
-                // Essayer de formater la date pour l'affichage
-                try {
-                    $date = \Carbon\Carbon::parse($this->detectedDate);
-                    $this->date_fabrication = $date->format('Y-m-d');
-                    $this->date_expiration = $date->addYear()->format('Y-m-d');
-                } catch (\Exception $e) {
-                    // La date n'a pas pu être parsée
-                    \Log::error('Erreur de parsing de date: ' . $e->getMessage());
-                }
-            }
+
+        // Extraction des deux dates (fabrication et expiration) depuis le texte OCR
+        $dates = $this->extractDatesFromText($this->extractedText);
+        if ($dates['fabrication']) {
+            $this->date_fabrication = $dates['fabrication'];
+        }
+        if ($dates['expiration']) {
+            $this->date_expiration = $dates['expiration'];
+        }
+    }
+
+    // Méthode utilitaire pour extraire les deux dates du texte OCR
+    public function extractDatesFromText($text)
+    {
+        $result = ['fabrication' => null, 'expiration' => null];
+        if (preg_match_all('/(\d{2}[\/\-]\d{2}[\/\-]\d{4})/', $text, $matches)) {
+            $result['fabrication'] = isset($matches[1][0]) ? date('Y-m-d', strtotime(str_replace(['/', '-'], '-', $matches[1][0]))) : null;
+            $result['expiration'] = isset($matches[1][1]) ? date('Y-m-d', strtotime(str_replace(['/', '-'], '-', $matches[1][1]))) : null;
+        }
+        return $result;
+    }
+
+    public function supprimer($id)
+    {
+        $produit = Produit::find($id);
+        if ($produit) {
+            $produit->delete();
+            // Log action
+            Action::create([
+                'user_id' => Auth::id(),
+                'user_type' => 'controleur',
+                'action' => 'suppression_produit',
+                'description' => 'Suppression du produit ID ' . $id,
+            ]);
+            $this->refreshProduits();
+            session()->flash('success', 'Produit supprimé avec succès.');
+        } else {
+            session()->flash('error', 'Produit introuvable.');
         }
     }
 

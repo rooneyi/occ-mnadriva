@@ -262,10 +262,15 @@ class ControleurController extends Controller
     // Extraction OCR des dates depuis une photo
     public function extractDates(Request $request)
     {
-        if (!$request->hasFile('photo')) {
-            return response()->json(['error' => 'Aucune image reçue.'], 400);
+        if (!$request->hasFile('photo') || !$request->has('produit_id')) {
+            return response()->json(['error' => 'Aucune image ou produit spécifié.'], 400);
         }
         $photo = $request->file('photo');
+        $produitId = $request->input('produit_id');
+        $produit = Produit::find($produitId);
+        if (!$produit) {
+            return response()->json(['error' => 'Produit introuvable.'], 404);
+        }
         $path = $photo->storeAs('ocr_temp', uniqid().'.'.$photo->getClientOriginalExtension(), 'public');
         $fullPath = storage_path('app/public/'.$path);
 
@@ -276,13 +281,17 @@ class ControleurController extends Controller
         // Extraction des dates (formats courants)
         $dateFabrication = null;
         $dateExpiration = null;
-        // Recherche de dates au format JJ/MM/AAAA ou JJ-MM-AAAA
         if (preg_match_all('/(\d{2}[\/\-]\d{2}[\/\-]\d{4})/', $text, $matches)) {
             $dateFabrication = $matches[1][0] ?? null;
             $dateExpiration = $matches[1][1] ?? null;
         }
         // Nettoyage du fichier temporaire
         @unlink($fullPath);
+
+        // Mettre à jour le modèle Produit
+        $produit->date_fabrication = $dateFabrication;
+        $produit->date_expiration = $dateExpiration;
+        $produit->save();
 
         return response()->json([
             'date_fabrication' => $dateFabrication,
