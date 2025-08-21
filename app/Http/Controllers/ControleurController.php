@@ -258,13 +258,6 @@ class ControleurController extends Controller
         return view('controleur.declaration-detail', compact('declaration'));
     }
 
-    // Afficher les notifications du contrôleur
-    public function notifications()
-    {
-        $user = auth()->user();
-        $notifications = $user->notifications()->latest()->get();
-        return view('livewire.controleur.notifications', compact('notifications'));
-    }
 
     // Extraction OCR des dates depuis une photo
     public function extractDates(Request $request)
@@ -294,6 +287,21 @@ class ControleurController extends Controller
         return response()->json([
             'date_fabrication' => $dateFabrication,
             'date_expiration' => $dateExpiration,
+        ]);
+    }
+    
+    /**
+     * Afficher les notifications du contrôleur
+     */
+    public function notifications()
+    {
+        $user = Auth::user();
+        $notifications = $user->notifications()
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+            
+        return view('controleur.notifications', [
+            'notifications' => $notifications
         ]);
     }
 }
