@@ -31,10 +31,15 @@ class ClientDeclarationSubmitted extends Notification
         foreach ($produits as $produit) {
             $produitsList[] = '- ' . ($produit['nom_produit'] ?? 'Produit') . ' | Quantité : ' . ($produit['quantite'] ?? '');
         }
+        // Calculer la date de passage (2 jours après la soumission)
+        $datePassage = isset($this->declarationData['date_soumission'])
+            ? \Carbon\Carbon::parse($this->declarationData['date_soumission'])->addDays(2)->format('d/m/Y')
+            : \Carbon\Carbon::now()->addDays(2)->format('d/m/Y');
         return array_merge($this->declarationData, [
             'controle' => true,
             'sujet' => 'Déclaration soumise avec succès',
-            'message' => 'Votre déclaration a été soumise avec succès. Veuillez revenir dans 2 jours pour le contrôle.',
+            'message' => 'Votre déclaration a été soumise avec succès. Veuillez revenir le ' . $datePassage . ' pour le contrôle.',
+            'date_passage' => $datePassage,
             'produits_list' => $produitsList,
             'dashboard_url' => url('/client/dashboard'),
         ]);

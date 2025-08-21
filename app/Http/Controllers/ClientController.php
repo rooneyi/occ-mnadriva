@@ -9,6 +9,8 @@ use App\Models\Declaration;
 use App\Models\RapportAnalyse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use App\Services\NotificationService;
 
 class ClientController extends Controller
 {
@@ -90,6 +92,10 @@ class ClientController extends Controller
                     return back()->withInput()->with('error', "Aucun produit valide sélectionné.");
                 }
                 $declaration->produits()->sync($produitIds);
+                
+                // Notifier le client et le contrôleur
+                $produits = $declaration->produits;
+                NotificationService::notifyDeclarationSubmitted($declaration, $produits);
             } else {
                 return back()->withInput()->with('error', "Aucun produit sélectionné.");
             }
@@ -126,6 +132,7 @@ class ClientController extends Controller
                 'id_declaration' => $declaration->id_declaration,
                 'statut' => $declaration->statut,
                 'produits' => $produitsNotif,
+                'date_soumission' => $declaration->date_soumission,
             ]));
 
             // Notifier le contrôleur avec tous les produits
@@ -136,6 +143,14 @@ class ClientController extends Controller
                     'produits' => $produitsNotif,
                 ]));
             }
+
+            // Log action pour le chef de service
+            \App\Models\Action::create([
+                'user_id' => $client->id,
+                'user_type' => 'client',
+                'action' => 'soumission_declaration',
+                'description' => 'Déclaration soumise par le client ID ' . $client->id . ' (Déclaration ID ' . $declaration->id_declaration . ')',
+            ]);
 
             // Charger les déclarations associées au client
             $declarations = Declaration::where('user_id', $client->id)

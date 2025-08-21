@@ -5,6 +5,8 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Produit;
 use App\Models\ProduitPhoto;
+use App\Models\Action;
+use Illuminate\Support\Facades\Auth;
 
 class PhotosProduit extends Component
 {
@@ -31,6 +33,13 @@ class PhotosProduit extends Component
                 'chemin_photo' => $path,
             ]);
         }
+        // Log action controleur
+        Action::create([
+            'user_id' => Auth::id(),
+            'user_type' => 'controleur',
+            'action' => 'ajout_photos',
+            'description' => count($this->photos).' photo(s) ajoutée(s) au produit ID '.$this->produitId,
+        ]);
         session()->flash('success', 'Photos enregistrées avec succès.');
     }
 

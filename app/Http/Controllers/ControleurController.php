@@ -152,6 +152,13 @@ class ControleurController extends Controller
             'action' => 'valider_produit',
             'description' => 'Validation du produit ID ' . $produitId,
         ]);
+        // Log action pour le chef de service
+        \App\Models\Action::create([
+            'user_id' => Auth::id(),
+            'user_type' => 'controleur',
+            'action' => 'validation_produit',
+            'description' => 'Produit validé par le contrôleur ID ' . Auth::id() . ' (Produit ID ' . $produitId . ')',
+        ]);
         return back()->with('success', 'Produit validé.');
     }
 
@@ -167,6 +174,13 @@ class ControleurController extends Controller
             'user_type' => 'controleur',
             'action' => 'rejeter_produit',
             'description' => 'Rejet du produit ID ' . $produitId,
+        ]);
+        // Log action pour le chef de service
+        \App\Models\Action::create([
+            'user_id' => Auth::id(),
+            'user_type' => 'controleur',
+            'action' => 'rejet_produit',
+            'description' => 'Produit rejeté par le contrôleur ID ' . Auth::id() . ' (Produit ID ' . $produitId . ')',
         ]);
         return back()->with('success', 'Produit rejeté.');
     }
@@ -202,6 +216,13 @@ class ControleurController extends Controller
                 ];
             }
             $produit->save();
+            // Log action: mise à jour des dates et statut par le contrôleur
+            Action::create([
+                'user_id' => Auth::id(),
+                'user_type' => 'controleur',
+                'action' => 'maj_dates_produit',
+                'description' => 'Mise à jour des dates et du statut pour le produit ID ' . $produit->id_produit,
+            ]);
         } elseif ($produit->date_expiration && $produit->date_fabrication) {
             $diff = now()->diffInMonths(\Carbon\Carbon::parse($produit->date_expiration), false);
             $validite = [

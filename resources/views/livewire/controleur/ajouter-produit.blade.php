@@ -11,11 +11,45 @@
         <input type="text" wire:model="description_produit" placeholder="Description du produit" class="border rounded p-2 mb-2 w-full">
         <input type="date" wire:model="date_fabrication" placeholder="Date de fabrication" class="border rounded p-2 mb-2 w-full">
         <input type="date" wire:model="date_expiration" placeholder="Date d'expiration" class="border rounded p-2 mb-2 w-full">
-        <!-- Ajout du champ fichier et bouton d'extraction -->
-        <div class="mb-2">
-            <input type="file" id="photo_produit" accept="image/*" class="border rounded p-2 w-full">
-            <button type="button" id="extract-dates" class="bg-green-600 text-white px-4 py-2 rounded mt-2">Extraire les dates depuis la photo</button>
-            <span id="extract-status" class="ml-2 text-sm"></span>
+        
+        <!-- Section OCR -->
+        <div class="mb-4 p-4 border rounded bg-gray-50">
+            <h3 class="font-bold mb-2">Extraction de texte depuis une image</h3>
+            
+            <!-- Champ de téléchargement de fichier -->
+            <div class="mb-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Télécharger une photo</label>
+                <input type="file" id="photo_produit" accept="image/*" capture="environment" 
+                       wire:model="photo" class="border rounded p-2 w-full">
+                <p class="text-xs text-gray-500 mt-1">Sur mobile, utilisez l'appareil photo pour une capture directe.</p>
+            </div>
+            
+            <!-- Affichage des résultats OCR -->
+            @if(isset($extractedText) && $extractedText)
+                <div class="mt-3 p-3 bg-white border rounded">
+                    <h4 class="font-semibold mb-2">Texte extrait :</h4>
+                    <div class="bg-gray-100 p-2 rounded text-sm mb-3">
+                        {{ $extractedText }}
+                    </div>
+                    
+                    @if(!empty($detectedDate))
+                        <div class="mt-2">
+                            <h4 class="font-semibold">Date détectée :</h4>
+                            <p class="text-green-700">{{ $detectedDate }}</p>
+                            <p class="text-xs text-gray-500 mt-1">Les champs de date ont été remplis automatiquement.</p>
+                        </div>
+                    @else
+                        <p class="text-yellow-600 text-sm mt-2">Aucune date n'a pu être extraite du texte.</p>
+                    @endif
+                </div>
+            @endif
+            
+            <div class="mt-2">
+                <button type="button" id="extract-dates" class="bg-green-600 text-white px-4 py-2 rounded">
+                    Extraire les dates depuis la photo
+                </button>
+                <span id="extract-status" class="ml-2 text-sm"></span>
+            </div>
         </div>
         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Enregistrer</button>
     </form>

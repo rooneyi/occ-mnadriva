@@ -4,6 +4,7 @@ namespace App\Livewire\Controleur;
 use Livewire\Component;
 use App\Models\Produit;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Action;
 
 class ValidationProduit extends Component
 {
@@ -25,6 +26,13 @@ class ValidationProduit extends Component
         if ($produit) {
             $produit->statut = 'valide';
             $produit->save();
+            // Log action controleur
+            Action::create([
+                'user_id' => Auth::id(),
+                'user_type' => 'controleur',
+                'action' => 'valider_produit',
+                'description' => 'Validation du produit ID '.$produit->id_produit,
+            ]);
             session()->flash('success', 'Produit validé avec succès.');
         }
     }
@@ -33,8 +41,15 @@ class ValidationProduit extends Component
     {
         $produit = Produit::where('id_produit', $this->produitId)->first();
         if ($produit) {
-            $produit->statut = 'rejeté';
+            $produit->statut = 'rejete';
             $produit->save();
+            // Log action controleur
+            Action::create([
+                'user_id' => Auth::id(),
+                'user_type' => 'controleur',
+                'action' => 'rejeter_produit',
+                'description' => 'Rejet du produit ID '.$produit->id_produit,
+            ]);
             session()->flash('error', 'Produit rejeté.');
         }
     }

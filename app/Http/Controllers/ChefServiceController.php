@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Dossier;
 use App\Models\Action;
+use App\Services\NotificationService;
 
 class ChefServiceController extends Controller
 {
@@ -21,15 +22,29 @@ class ChefServiceController extends Controller
         }
         $dossiers = $query->get();
         $statuts = Dossier::distinct()->pluck('statut');
-        // Récupérer l'historique des actions, avec filtres et pagination
-        $actionsQuery = Action::with('user')->latest();
-        if ($request->filled('type')) {
-            $actionsQuery->where('user_type', $request->type);
-        }
-        if ($request->filled('action_key')) {
-            $actionsQuery->where('action', 'like', '%'.$request->action_key.'%');
-        }
-        $actions = $actionsQuery->paginate(50)->appends($request->all());
+        // Récupérer l'historique des actions via le service de notification
+        $actions = NotificationService::getDashboardActions(50);
+        
+        // Récupérer les statistiques par type d'utilisateur
+        $userTypes = Action::select('user_type')
+            ->selectRaw('count(*) as count')
+            ->groupBy('user_type')
+            ->pluck('count', 'user_type');
+            
+        // Récupérer les actions récentes par type
+        $recentActions = Action::with('user')
+            ->latest()
+            ->take(10)
+            ->get()
+            ->map(function($action) {
+                return [
+                    'user' => $action->user ? $action->user->name : 'Système',
+                    'type' => $action->user_type,
+                    'action' => $action->action,
+                    'description' => $action->description,
+                    'date' => $action->created_at->format('d/m/Y H:i')
+                ];
+            });
         // Statistiques de trafic : nombre de dossiers créés par jour (30 derniers jours)
         $trafficStats = Dossier::selectRaw('DATE(created_at) as date, COUNT(*) as count')
             ->where('created_at', '>=', now()->subDays(30))
@@ -42,7 +57,15 @@ class ChefServiceController extends Controller
             ->limit(20)
             ->get();
 
-        return view('chefservice.dashboard', compact('dossiers', 'statuts', 'actions', 'trafficStats', 'recentDeclarations'));
+        return view('chefservice.dashboard', [
+            'dossiers' => $dossiers,
+            'statuts' => $statuts,
+            'actions' => $actions,
+            'userTypes' => $userTypes,
+            'recentActions' => $recentActions,
+            'trafficStats' => $trafficStats,
+            'recentDeclarations' => $recentDeclarations
+        ]);
     }
 
     public function exportExcel(Request $request)

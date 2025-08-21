@@ -7,6 +7,7 @@ use App\Models\RapportAnalyse;
 use App\Models\Declaration;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Services\NotificationService;
 
 class LaborantinController extends Controller
 {
@@ -54,11 +55,8 @@ class LaborantinController extends Controller
         ]);
         // Génération automatique du rapport PDF (optionnel)
 
-        // Notifier tous les contrôleurs pour validation
-        $controleurs = \App\Models\User::where('role', 'controleur')->get();
-        foreach ($controleurs as $controleur) {
-            $controleur->notify(new \App\Notifications\AnalyseSubmitted($rapport));
-        }
+        // Utiliser le service de notification pour notifier les contrôleurs et enregistrer l'action
+        NotificationService::notifyAnalyseSubmitted($rapport);
         return redirect()->route('laborantin.historique')->with('success', 'Rapport généré pour le produit ' . ($produit->nom_produit ?? '') . ' et soumis au contrôleur.');
     }
 

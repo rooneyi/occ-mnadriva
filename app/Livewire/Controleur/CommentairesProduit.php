@@ -5,6 +5,7 @@ use Livewire\Component;
 use App\Models\Produit;
 use App\Models\Commentaire;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Action;
 
 class CommentairesProduit extends Component
 {
@@ -16,7 +17,7 @@ class CommentairesProduit extends Component
     {
         $this->produits = Produit::all();
         if (!$this->produitId && $this->produits->count()) {
-            $this->produitId = $this->produits->first()->id;
+            $this->produitId = $this->produits->first()->id_produit;
         }
     }
 
@@ -26,6 +27,13 @@ class CommentairesProduit extends Component
             'produit_id' => $this->produitId,
             'user_id' => Auth::id(),
             'contenu' => $this->commentaire,
+        ]);
+        // Log action controleur
+        Action::create([
+            'user_id' => Auth::id(),
+            'user_type' => 'controleur',
+            'action' => 'ajout_commentaire',
+            'description' => 'Commentaire ajouté sur produit ID '.$this->produitId,
         ]);
         $this->commentaire = '';
         session()->flash('success', 'Commentaire ajouté avec succès.');
