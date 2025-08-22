@@ -173,12 +173,12 @@ class ClientController extends Controller
     {
         $rapport = RapportAnalyse::findOrFail($rapportId);
 
-        // Exemple si tu stockes le fichier sur le disque
+        // Si le fichier existe, on le télécharge
         if ($rapport->fichier && Storage::exists($rapport->fichier)) {
             return Storage::download($rapport->fichier);
         }
 
-        // Sinon, retourne juste les infos
-        return response()->json($rapport);
+        // Sinon, afficher une page d'erreur ou un message
+        return back()->with('error', "Le rapport n'est pas disponible au téléchargement.");
     }
 }
