@@ -1,5 +1,4 @@
-// Formulaire d'analyse laboratoire prérempli
-Route::get('/laborantin/analyse', [App\Http\Controllers\LaborantinController::class, 'showAnalyseForm'])->name('laborantin.analyse.form');
+
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -8,7 +7,8 @@ use Livewire\Volt\Volt;
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
-
+// Formulaire d'analyse laboratoire prérempli
+Route::get('/laborantin/analyse', [App\Http\Controllers\LaborantinController::class, 'showAnalyseForm'])->name('laborantin.analyse.form');
 
 // Authentification et inscription client (Livewire)
 Route::get('/client/register', function() {

@@ -84,14 +84,6 @@ class NotificationService
         return Action::with('user')
             ->latest()
             ->limit($limit)
-            ->get()
-            ->map(function($action) {
-                return [
-                    'user_name' => $action->user ? $action->user->name : 'Système',
-                    'action' => $action->action,
-                    'description' => $action->description,
-                    'date' => $action->created_at->format('d/m/Y H:i')
-                ];
-            });
+            ->get();
     }
 }
