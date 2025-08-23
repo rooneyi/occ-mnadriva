@@ -111,12 +111,13 @@ class LaborantinController extends Controller
             'date_expiration' => $produit->date_expiration ?? now()->addMonths(6),
             'conclusion' => 'Généré automatiquement',
         ]);
-        $submitted = [
-            'id_produit' => $produit->id_produit,
-            'nom_produit' => $produit->nom_produit ?? $produit->designation ?? $produit->designation_produit ?? null,
-            'date_fabrication' => $produit->date_fabrication ?? '',
-            'date_expiration' => $produit->date_expiration ?? '',
-        ];
-        return redirect()->back()->with(['success' => 'Rapport généré automatiquement avec succès.', 'submitted' => $submitted]);
+            $submitted = [
+                'id_produit' => $produit->id_produit,
+                'nom_produit' => $produit->nom_produit ?? $produit->designation ?? $produit->designation_produit ?? null,
+                'date_fabrication' => $produit->date_fabrication ?? '',
+                'date_expiration' => $produit->date_expiration ?? '',
+            ];
+            // Redirige vers le formulaire d'analyse pré-rempli
+            return redirect()->route('laborantin.analyse.form', ['id_produit' => $produit->id_produit])->with(['success' => 'Rapport généré automatiquement avec succès.', 'submitted' => $submitted]);
     }
 }

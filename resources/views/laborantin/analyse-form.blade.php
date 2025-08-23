@@ -21,14 +21,24 @@
         @csrf
         <div class="mb-4">
             <label class="block font-semibold mb-1">Déclaration :</label>
-            <select name="id_declaration" id="declarationSelect" class="border rounded p-2 w-full" required>
+            <select name="id_declaration" id="declarationSelect" class="border rounded p-2 w-full" required onchange="afficherDetailsDeclaration()">
                 <option value="">Sélectionner une déclaration</option>
                 @foreach($declarations as $declaration)
-                    <option value="{{ $declaration->id_declaration }}" @if(isset($preselectedDeclaration) && $preselectedDeclaration->id_declaration == $declaration->id_declaration) selected @endif>
-                        #{{ $declaration->id_declaration }} - {{ $declaration->produits->first()->nom_produit ?? '' }} ({{ $declaration->date_soumission }})
+                    @php $produit = $declaration->produits->first(); @endphp
+                    <option value="{{ $declaration->id_declaration }}"
+                        data-produit="{{ $produit ? $produit->nom_produit : '' }}"
+                        data-quantite="{{ $produit ? ($produit->pivot->quantite ?? $produit->quantite ?? '') : '' }}"
+                        data-date-fabrication="{{ $produit ? $produit->date_fabrication : '' }}"
+                        data-date-expiration="{{ $produit ? $produit->date_expiration : '' }}"
+                        @if(isset($preselectedDeclaration) && $preselectedDeclaration->id_declaration == $declaration->id_declaration) selected @endif>
+                        #{{ $declaration->id_declaration }} - {{ $produit ? $produit->nom_produit : '' }} ({{ $declaration->date_soumission }})
                     </option>
                 @endforeach
             </select>
+            <div id="detailsDeclaration" class="mt-4 p-4 bg-gray-100 rounded hidden">
+                <h4 class="font-bold mb-2">Détails de la déclaration sélectionnée :</h4>
+                <div id="produitDetails"></div>
+            </div>
         </div>
         <div class="mb-4">
             <label class="block font-semibold mb-1">Produit :</label>
@@ -68,26 +78,33 @@
         </div>
         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Générer et soumettre le rapport</button>
         <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        function afficherDetailsDeclaration() {
             const declarationSelect = document.getElementById('declarationSelect');
             const designationProduit = document.getElementById('designation_produit');
             const quantite = document.getElementById('quantite');
             const dateFabrication = document.getElementById('date_fabrication');
             const dateExpiration = document.getElementById('date_expiration');
-            declarationSelect.addEventListener('change', function() {
-                const selected = this.options[this.selectedIndex];
-                designationProduit.value = selected.getAttribute('data-produit') || '';
-                quantite.value = selected.getAttribute('data-quantite') || '';
-                dateFabrication.value = selected.getAttribute('data-date-fabrication') || '';
-                dateExpiration.value = selected.getAttribute('data-date-expiration') || '';
-            });
-            if (declarationSelect.value) {
-                const selected = declarationSelect.options[declarationSelect.selectedIndex];
-                designationProduit.value = selected.getAttribute('data-produit') || '';
-                quantite.value = selected.getAttribute('data-quantite') || '';
-                dateFabrication.value = selected.getAttribute('data-date-fabrication') || '';
-                dateExpiration.value = selected.getAttribute('data-date-expiration') || '';
+            const detailsDiv = document.getElementById('detailsDeclaration');
+            const produitDetails = document.getElementById('produitDetails');
+            const selected = declarationSelect.options[declarationSelect.selectedIndex];
+            designationProduit.value = selected.getAttribute('data-produit') || '';
+            quantite.value = selected.getAttribute('data-quantite') || '';
+            dateFabrication.value = selected.getAttribute('data-date-fabrication') || '';
+            dateExpiration.value = selected.getAttribute('data-date-expiration') || '';
+            if (selected.value) {
+                detailsDiv.classList.remove('hidden');
+                produitDetails.innerHTML =
+                    '<strong>Produit :</strong> ' + (selected.getAttribute('data-produit') || '-') + '<br>' +
+                    '<strong>Quantité :</strong> ' + (selected.getAttribute('data-quantite') || '-') + '<br>' +
+                    '<strong>Date de fabrication :</strong> ' + (selected.getAttribute('data-date-fabrication') || '-') + '<br>' +
+                    '<strong>Date d\'expiration :</strong> ' + (selected.getAttribute('data-date-expiration') || '-') + '<br>';
+            } else {
+                detailsDiv.classList.add('hidden');
+                produitDetails.innerHTML = '';
             }
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            afficherDetailsDeclaration();
         });
         </script>
     </form>
