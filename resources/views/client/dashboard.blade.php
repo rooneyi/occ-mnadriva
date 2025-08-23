@@ -43,11 +43,33 @@
             <h2 class="text-lg font-semibold mb-2">Notifications</h2>
             <p>Consultez les notifications sur le statut de vos dossiers.</p>
         </a>
-        <!-- Télécharger le rapport d'analyse -->
-        <a href="{{ route('client.rapport.download', ['rapportId' => 1]) }}" class="block p-6 bg-white rounded shadow hover:bg-blue-50 transition">
-            <h2 class="text-lg font-semibold mb-2">Télécharger le rapport d'analyse</h2>
-            <p>Téléchargez le rapport d'analyse de vos produits.</p>
-        </a>
+        <!-- Liste des rapports d'analyse -->
+        <div class="block p-6 bg-white rounded shadow hover:bg-blue-50 transition">
+            <h2 class="text-lg font-semibold mb-2">Rapports d'analyse</h2>
+            <p>Téléchargez vos rapports d'analyse de produits.</p>
+            @if($declarations->isNotEmpty())
+                @foreach($declarations as $declaration)
+                    @if($declaration->rapports && $declaration->rapports->isNotEmpty())
+                        <ul class="list-disc ml-5">
+                        @foreach($declaration->rapports as $rapport)
+                            <li>
+                                <span class="font-semibold">Rapport #{{ $rapport->id_rapport ?? $rapport->id }}</span>
+                                <span>({{ $rapport->designation_produit ?? 'Produit' }})</span>
+                                <span class="text-xs text-gray-500">{{ $rapport->created_at ? $rapport->created_at->format('d/m/Y') : '-' }}</span>
+                                @if(in_array($rapport->statut, ['valide', 'rejete']))
+                                    <a href="{{ route('client.rapport.download', ['rapportId' => $rapport->id_rapport ?? $rapport->id]) }}" class="ml-2 px-2 py-1 bg-blue-600 text-white rounded text-xs">Télécharger</a>
+                                @else
+                                    <span class="ml-2 px-2 py-1 bg-gray-400 text-white rounded text-xs cursor-not-allowed" title="Rapport non validé ou rejeté">Non disponible</span>
+                                @endif
+                            </li>
+                        @endforeach
+                        </ul>
+                    @endif
+                @endforeach
+            @else
+                <p class="text-gray-500">Aucun rapport disponible.</p>
+            @endif
+        </div>
     </div>
 </div>
 @endsection

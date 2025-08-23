@@ -34,6 +34,29 @@
             </div>
         @endif
     </div>
+    <div class="mb-8">
+        <h3 class="text-lg font-bold text-blue-900 mb-4">Déclaration associée</h3>
+        @if(isset($declaration))
+            <div class="p-4 bg-gray-100 rounded">
+                <p><strong>Numéro de déclaration :</strong> {{ $declaration->id_declaration }}</p>
+                <p><strong>Client :</strong> {{ $declaration->client->name ?? '-' }}</p>
+                <p><strong>Date de soumission :</strong> {{ $declaration->date_soumission }}</p>
+                <p><strong>Statut :</strong> {{ $declaration->statut }}</p>
+            </div>
+        @endif
+    </div>
+    <div class="mb-8">
+        <h3 class="text-lg font-bold text-blue-900 mb-4">Rapport du laborantin</h3>
+        @if(isset($rapportLaborantin) && $rapportLaborantin)
+            <div class="p-4 bg-gray-100 rounded">
+                <p><strong>Désignation produit :</strong> {{ $rapportLaborantin->designation_produit }}</p>
+                <p><strong>Laborantin :</strong> {{ $rapportLaborantin->laborantin->name ?? '-' }}</p>
+                <p><strong>Conclusion :</strong> {{ $rapportLaborantin->conclusion }}</p>
+                <p><strong>Statut du rapport :</strong> {{ $rapportLaborantin->statut }}</p>
+            </div>
+        @else
+            <p class="text-gray-500">Aucun rapport du laborantin disponible pour ce produit.</p>
+        @endif
     {{-- Intégration du composant Livewire pour les commentaires --}}
     @if($produit)
         <div class="mb-8">

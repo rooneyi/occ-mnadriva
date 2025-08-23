@@ -83,12 +83,17 @@ class ControleurController extends Controller
     // Page de détail d'une demande (actions sur produits)
     public function showDemande($demandeId)
     {
-        $demande = Declaration::with('produits')->findOrFail($demandeId);
+        $demande = Declaration::with(['produits', 'rapports'])->findOrFail($demandeId);
         $produit = $demande->produits->first();
+        $rapportLaborantin = null;
         $validite = null;
         // Si aucun produit n'est lié à la demande, on évite l'erreur
         if (!$produit) {
-            return view('controleur.demande_show', ['produit' => null, 'validite' => null]);
+            return view('controleur.demande_show', ['produit' => null, 'validite' => null, 'declaration' => $demande, 'rapportLaborantin' => null]);
+        }
+        // Cherche le rapport du laborantin lié à la déclaration et au produit
+        if ($demande->rapports && $produit) {
+            $rapportLaborantin = $demande->rapports->where('designation_produit', $produit->nom_produit)->first();
         }
         if ($produit->date_expiration && $produit->date_fabrication) {
             $diff = now()->diffInMonths(\Carbon\Carbon::parse($produit->date_expiration), false);
@@ -97,7 +102,7 @@ class ControleurController extends Controller
                 'message' => ($produit->statut === 'passable' ? 'Produit passable' : 'Produit non passable') . ' (expiration dans ' . $diff . ' mois)'
             ];
         }
-        return view('controleur.demande_show', compact('produit', 'validite'));
+        return view('controleur.demande_show', compact('produit', 'validite', 'declaration', 'rapportLaborantin'));
     }
 
     // Prendre une photo d'un produit (upload)

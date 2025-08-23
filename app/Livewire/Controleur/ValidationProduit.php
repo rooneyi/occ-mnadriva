@@ -12,12 +12,16 @@ class ValidationProduit extends Component
     public $commentaire;
     public $moisRestants;
     public $statutAuto;
+    public $declaration;
+    public $rapportLaborantin;
 
     public function mount()
     {
         $this->produitId = null;
         $this->moisRestants = null;
         $this->statutAuto = null;
+        $this->declaration = null;
+        $this->rapportLaborantin = null;
     }
 
     public function valider()
@@ -59,9 +63,22 @@ class ValidationProduit extends Component
         $produit = Produit::where('id_produit', $this->produitId)->first();
         if ($produit) {
             $this->calculerStatut($produit);
+            // Récupérer la déclaration associée
+            $declaration = $produit->declarations()->first();
+            $this->declaration = $declaration;
+            // Récupérer le rapport du laborantin lié à la déclaration et au produit
+            if ($declaration) {
+                $this->rapportLaborantin = \App\Models\RapportAnalyse::where('id_declaration', $declaration->id_declaration)
+                    ->where('designation_produit', $produit->nom_produit)
+                    ->first();
+            } else {
+                $this->rapportLaborantin = null;
+            }
         } else {
             $this->moisRestants = null;
             $this->statutAuto = null;
+            $this->declaration = null;
+            $this->rapportLaborantin = null;
         }
     }
 
@@ -103,6 +120,8 @@ class ValidationProduit extends Component
             'moisRestants' => $this->moisRestants,
             'statutAuto' => $this->statutAuto,
             'rapportSoumis' => $rapportSoumis,
+            'declaration' => $this->declaration,
+            'rapportLaborantin' => $this->rapportLaborantin,
         ]);
     }
 }

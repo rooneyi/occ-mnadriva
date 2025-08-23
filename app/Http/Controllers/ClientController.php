@@ -10,6 +10,7 @@ use App\Models\RapportAnalyse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use App\Services\NotificationService;
 
 class ClientController extends Controller
@@ -127,17 +128,16 @@ class ClientController extends Controller
                 ];
             })->toArray();
 
-            // Notifier le client avec tous les produits soumis
-            $client->notify(new \App\Notifications\ClientDeclarationSubmitted([
+            // Notifier immédiatement le client et le contrôleur
+            Notification::sendNow($client, new \App\Notifications\ClientDeclarationSubmitted([
                 'id_declaration' => $declaration->id_declaration,
                 'statut' => $declaration->statut,
                 'produits' => $produitsNotif,
                 'date_soumission' => $declaration->date_soumission,
             ]));
 
-            // Notifier le contrôleur avec tous les produits
             if ($controleur) {
-                $controleur->notify(new \App\Notifications\ControleurDeclarationNotification([
+                    Notification::sendNow($controleur, new \App\Notifications\ControleurDeclarationNotification([
                     'id' => $declaration->id_declaration,
                     'statut' => $declaration->statut,
                     'produits' => $produitsNotif,
@@ -173,12 +173,14 @@ class ClientController extends Controller
     {
         $rapport = RapportAnalyse::findOrFail($rapportId);
 
-        // Si le fichier existe, on le télécharge
-        if ($rapport->fichier && Storage::exists($rapport->fichier)) {
-            return Storage::download($rapport->fichier);
+        // Restriction : le client ne peut télécharger que si le rapport est validé ou rejeté
+        if (in_array($rapport->statut, ['valide', 'rejete'])) {
+            if ($rapport->fichier && Storage::exists($rapport->fichier)) {
+                return Storage::download($rapport->fichier);
+            }
+            return back()->with('error', "Le rapport n'est pas disponible au téléchargement.");
         }
-
-        // Sinon, afficher une page d'erreur ou un message
-        return back()->with('error', "Le rapport n'est pas disponible au téléchargement.");
+        // Si le rapport n'est pas validé ou rejeté, on affiche un message
+        return back()->with('error', "Le rapport n'est pas encore validé ou rejeté par le contrôleur.");
     }
 }

@@ -17,7 +17,7 @@ Route::get('/client/register', function() {
 
 
 // Tableau de bord client
-Route::view('/client/dashboard', 'client.dashboard')->name('client.dashboard');
+Route::get('/client/dashboard', [App\Http\Controllers\ClientController::class, 'dashboard'])->name('client.dashboard');
 
 // Formulaire de déclaration (Livewire)
 Route::get('/client/declaration', function() {

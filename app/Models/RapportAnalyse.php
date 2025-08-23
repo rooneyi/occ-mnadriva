@@ -20,6 +20,8 @@ class RapportAnalyse extends Model
         'date_fabrication',
         'date_expiration',
         'conclusion',
+    'fichier', // chemin du fichier rapport (PDF, etc.)
+    'statut', // statut du rapport (en_attente, valide, rejete)
     ];
     // Suppression du cast id_declaration, le champ n'est plus utilisé
     public function laborantin()

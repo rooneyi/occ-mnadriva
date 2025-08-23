@@ -28,6 +28,32 @@
             <strong>Statut automatique :</strong> <span class="font-bold {{ $statutAuto == 'passable' ? 'text-green-600' : 'text-red-600' }}">{{ $statutAuto ?? 'N/A' }}</span><br>
             <strong>Statut actuel :</strong> {{ $produit->statut ?? 'N/A' }}
         </div>
+        <div class="mb-4">
+            <h3 class="text-lg font-bold text-blue-900 mb-2">Déclaration associée</h3>
+            @if($declaration)
+                <div class="p-2 bg-gray-100 rounded">
+                    <strong>Numéro de déclaration :</strong> {{ $declaration->id_declaration }}<br>
+                    <strong>Client :</strong> {{ $declaration->client->name ?? '-' }}<br>
+                    <strong>Date de soumission :</strong> {{ $declaration->date_soumission }}<br>
+                    <strong>Statut :</strong> {{ $declaration->statut }}<br>
+                </div>
+            @else
+                <span class="text-gray-500">Aucune déclaration associée.</span>
+            @endif
+        </div>
+        <div class="mb-4">
+            <h3 class="text-lg font-bold text-blue-900 mb-2">Rapport du laborantin</h3>
+            @if($rapportLaborantin)
+                <div class="p-2 bg-gray-100 rounded">
+                    <strong>Désignation produit :</strong> {{ $rapportLaborantin->designation_produit }}<br>
+                    <strong>Laborantin :</strong> {{ $rapportLaborantin->laborantin->name ?? '-' }}<br>
+                    <strong>Conclusion :</strong> {{ $rapportLaborantin->conclusion }}<br>
+                    <strong>Statut du rapport :</strong> {{ $rapportLaborantin->statut }}<br>
+                </div>
+            @else
+                <span class="text-gray-500">Aucun rapport du laborantin disponible pour ce produit.</span>
+            @endif
+        </div>
         @if(!$rapportSoumis)
             <div class="text-yellow-700 bg-yellow-100 border rounded p-2 mb-2">
                 Le rapport d'analyse du laborantin n'a pas encore été soumis. Vous ne pouvez pas valider ce produit tant que le rapport n'est pas disponible.
