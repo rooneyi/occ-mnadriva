@@ -1,4 +1,3 @@
-
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -56,6 +55,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/chefservice/dashboard', [App\Http\Controllers\ChefServiceController::class, 'dashboard'])->name('chefservice.dashboard');
     Route::get('/chefservice/export', [App\Http\Controllers\ChefServiceController::class, 'exportExcel'])->name('chefservice.export');
     Route::get('/chefservice/dossier/{id}', [App\Http\Controllers\ChefServiceController::class, 'show'])->name('chefservice.dossier.detail');
+    // ChefService - création utilisateur
+    Route::get('/chefservice/user/create', [App\Http\Controllers\ChefServiceController::class, 'createUser'])->name('chefservice.user.create');
+    Route::post('/chefservice/user/create', [App\Http\Controllers\ChefServiceController::class, 'storeUser'])->name('chefservice.user.store');
 });
 
 // Laborantin

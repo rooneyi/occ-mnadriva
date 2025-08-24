@@ -68,6 +68,8 @@
             @elseif($role === 'chef_service')
                 <a href="{{ route('chefservice.dashboard') }}"
                    class="block py-2 px-3 rounded transition hover:bg-blue-800 hover:pl-5">Tableau de bord</a>
+                <a href="{{ route('chefservice.user.create') }}"
+                   class="block py-2 px-3 rounded transition hover:bg-green-700 hover:pl-5">Créer un utilisateur</a>
             @endif
         </nav>
         <form method="POST" action="{{ route('logout') }}" class="mt-8">

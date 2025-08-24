@@ -113,4 +113,30 @@ class ChefServiceController extends Controller
         $dossier = Dossier::with(['client', 'produits', 'declarations', 'rapports'])->findOrFail($id);
         return view('chefservice.dossier-detail', compact('dossier'));
     }
+
+    // Affiche le formulaire de création d'utilisateur
+    public function createUser()
+    {
+        return view('chefservice.create-user');
+    }
+
+    // Traite la création d'un nouvel utilisateur
+    public function storeUser(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'role' => 'required|in:client,controleur,chef_service,laborantin',
+            'password' => 'required|string|min:6',
+        ]);
+
+        $user = new \App\Models\User();
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->role = $request->role;
+        $user->password = bcrypt($request->password);
+        $user->save();
+
+        return redirect()->route('chefservice.user.create')->with('success', 'Utilisateur créé avec succès.');
+    }
 }
