@@ -3,7 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use PhpParser\Builder\Declaration;
+use App\Models\Declaration;
 
 class RapportAnalyse extends Model
 {

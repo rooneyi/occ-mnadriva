@@ -57,19 +57,24 @@ class ClientController extends Controller
             'numero_import'  => 'required|string',
             'document'       => 'nullable|file',
         ]);
+    }
 
         // Utiliser le guard par défaut (web) pour l'authentification client
-        $client = Auth::user();
-
+        //$client = Auth::user();
+        
         // Protection : rediriger si pas connecté
-        if (!$client) {
+        /*if (!$client) {
             return redirect()->route('client.login')
                 ->with('error', 'Veuillez vous connecter pour accéder à votre tableau de bord.');
-        }
+        }*/
 
         try {
             // Créer la déclaration
             $controleur = \App\Models\User::where('role', 'controleur')->first();
+            if (!$controleur) {
+                return back()->withInput()->with('error', "Aucun contrôleur n'est disponible pour l'assignation.");
+            }
+        }
             $declaration = Declaration::create([
                 'id_client'       => $client->id_client,
                 'id_declaration' => $request->id_declaration,
@@ -78,7 +83,7 @@ class ClientController extends Controller
                 'date_soumission' => now(),
                 'statut'          => 'en_attente',
                 'user_id'         => Auth::id(),
-                'user_id_controleur' => $controleur ? $controleur->id : null,
+                'user_id_controleur' => $controleur->id,
             ]);
             if (!$declaration) {
                 return back()->withInput()->with('error', "Erreur lors de la création de la déclaration.");
@@ -136,51 +141,44 @@ class ClientController extends Controller
                 'date_soumission' => $declaration->date_soumission,
             ]));
 
-            if ($controleur) {
-                    Notification::sendNow($controleur, new \App\Notifications\ControleurDeclarationNotification([
-                    'id' => $declaration->id_declaration,
-                    'statut' => $declaration->statut,
-                    'produits' => $produitsNotif,
-                ]));
-            }
-
-            // Log action pour le chef de service
-            \App\Models\Action::create([
-                'user_id' => $client->id,
-                'user_type' => 'client',
-                'action' => 'soumission_declaration',
-                'description' => 'Déclaration soumise par le client ID ' . $client->id . ' (Déclaration ID ' . $declaration->id_declaration . ')',
-            ]);
-
-            // Charger les déclarations associées au client
-            $declarations = Declaration::where('user_id', $client->id)
-                ->with('produits')
-                ->latest()
-                ->get();
-
-            // Retourner directement à la vue du tableau de bord avec les déclarations
-            return redirect()->route('client.dashboard')->with('success', 'Déclaration soumise avec succès.');
-        } catch (\Exception $e) {
-            \Log::error('Erreur lors de la soumission de la déclaration : ' . $e->getMessage());
-            return back()->withInput()->with('error', "Une erreur s'est produite lors de la soumission de la déclaration.");
-        }
-    }
-
-    /**
-     * Téléchargement du rapport d'analyse
-     */
-    public function downloadRapport($rapportId)
-    {
-        $rapport = RapportAnalyse::findOrFail($rapportId);
-
-        // Restriction : le client ne peut télécharger que si le rapport est validé ou rejeté
-        if (in_array($rapport->statut, ['valide', 'rejete'])) {
-            if ($rapport->fichier && Storage::exists($rapport->fichier)) {
-                return Storage::download($rapport->fichier);
-            }
-            return back()->with('error', "Le rapport n'est pas disponible au téléchargement.");
+            try {
+                // Vérifier si le client a déjà déclaré ces produits
+                $produitIds = array_filter($request->produits, function ($id) {
+                    return is_numeric($id);
+                });
+                if (empty($produitIds)) {
+                    return back()->withInput()->with('error', "Aucun produit valide sélectionné.");
+                }
+                $dejaDeclare = Declaration::where('user_id', $client->id)
+                    ->whereHas('produits', function($q) use ($produitIds) {
+                        $q->whereIn('produits.id_produit', $produitIds);
+                    })->exists();
+                if ($dejaDeclare) {
+                    return back()->withInput()->with('error', "Vous avez déjà déclaré ce(s) produit(s). Veuillez choisir un autre produit.");
+                }
+                // Créer la déclaration
+                $controleur = \App\Models\User::where('role', 'controleur')->first();
+                if (!$controleur) {
+                    return back()->withInput()->with('error', "Aucun contrôleur n'est disponible pour l'assignation.");
+                }
+                $declaration = Declaration::create([
+                    'id_client'       => $client->id_client,
+                    'id_declaration' => $request->id_declaration,
+                    'unite'           => $request->unite,
+                    'numero_import'   => $request->numero_import,
+                    'date_soumission' => now(),
+                    'statut'          => 'en_attente',
+                    'user_id'         => Auth::id(),
+                    'user_id_controleur' => $controleur->id,
+                ]);
+                if (!$declaration) {
+                    return back()->withInput()->with('error', "Erreur lors de la création de la déclaration.");
+                }
+                $declaration->produits()->sync($produitIds);
+                // Notifier le client et le contrôleur
+                $produits = $declaration->produits;
+                NotificationService::notifyDeclarationSubmitted($declaration, $produits);
         }
         // Si le rapport n'est pas validé ou rejeté, on affiche un message
-        return back()->with('error', "Le rapport n'est pas encore validé ou rejeté par le contrôleur.");
-    }
-}
+    // ...existing code...
+// ...existing code...

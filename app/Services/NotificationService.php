@@ -61,10 +61,9 @@ class NotificationService
     public static function notifyAnalyseSubmitted($rapport)
     {
         $declaration = $rapport->declaration;
-        $controleur = $declaration->controleur;
-        
+        $controleur = $declaration ? $declaration->controleur : null;
         if ($controleur) {
-            $controleur->user->notify(new AnalyseSubmitted($rapport));
+            $controleur->notify(new AnalyseSubmitted($rapport));
         }
 
         // Enregistrer l'action pour le tableau de bord du chef de service
@@ -72,7 +71,7 @@ class NotificationService
             'user_id' => $rapport->laborantin->user_id ?? null,
             'user_type' => 'laborantin',
             'action' => 'analyse_soumise',
-            'description' => 'Nouvelle analyse soumise pour la déclaration #' . $declaration->id_declaration
+            'description' => 'Nouvelle analyse soumise' . ($declaration ? ' pour la déclaration #' . $declaration->id_declaration : '')
         ]);
     }
 

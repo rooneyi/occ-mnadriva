@@ -84,16 +84,30 @@ class ControleurController extends Controller
     public function showDemande($demandeId)
     {
         $demande = Declaration::with(['produits', 'rapports'])->findOrFail($demandeId);
-        $produit = $demande->produits->first();
+        $produit = null;
         $rapportLaborantin = null;
         $validite = null;
+        // Si un produit est sélectionné (via GET ou POST), on prend la dernière déclaration liée à ce produit
+        $produitId = request('produit_id');
+        if ($produitId) {
+            // On récupère la dernière déclaration pour ce produit
+            $derniereDeclaration = Declaration::whereHas('produits', function($q) use ($produitId) {
+                $q->where('id_produit', $produitId);
+            })->latest()->first();
+            if ($derniereDeclaration) {
+                $demande = $derniereDeclaration->load(['produits', 'rapports']);
+                $produit = $demande->produits->where('id_produit', $produitId)->first();
+            }
+        } else {
+            $produit = $demande->produits->first();
+        }
         // Si aucun produit n'est lié à la demande, on évite l'erreur
         if (!$produit) {
             return view('controleur.demande_show', ['produit' => null, 'validite' => null, 'declaration' => $demande, 'rapportLaborantin' => null]);
         }
         // Cherche le rapport du laborantin lié à la déclaration et au produit
         if ($demande->rapports && $produit) {
-            $rapportLaborantin = $demande->rapports->where('designation_produit', $produit->nom_produit)->first();
+            $rapportLaborantin = $demande->rapports->where('designation_produit', $produit->nom_produit ?? $produit->designation)->first();
         }
         if ($produit->date_expiration && $produit->date_fabrication) {
             $diff = now()->diffInMonths(\Carbon\Carbon::parse($produit->date_expiration), false);

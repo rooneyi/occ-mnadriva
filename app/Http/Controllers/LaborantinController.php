@@ -48,6 +48,13 @@ class LaborantinController extends Controller
             'conclusion' => 'required|string',
         ]);
         $laborantin = Auth::user();
+        // Vérifier si un rapport existe déjà pour ce produit et cette déclaration
+        $rapportExistant = \App\Models\RapportAnalyse::where('id_declaration', $request->id_declaration)
+            ->where('designation_produit', $request->designation_produit)
+            ->exists();
+        if ($rapportExistant) {
+            return back()->withInput()->with('error', "Un rapport d'analyse pour ce produit a déjà été soumis pour cette déclaration.");
+        }
         $rapport = \App\Models\RapportAnalyse::create([
             'id_declaration' => $request->id_declaration,
             'id_laborantin' => $laborantin->id_laborantin ?? $laborantin->id,
@@ -65,7 +72,7 @@ class LaborantinController extends Controller
 
         // Utiliser le service de notification pour notifier les contrôleurs et enregistrer l'action
         NotificationService::notifyAnalyseSubmitted($rapport);
-        return redirect()->route('laborantin.historique')->with('success', 'Rapport généré pour le produit ' . ($produit->nom_produit ?? '') . ' et soumis au contrôleur.');
+        return redirect()->route('laborantin.historique')->with('success', 'Votre rapport d’analyse a été soumis avec succès et le contrôleur a été notifié.');
     }
 
     // Historique des analyses

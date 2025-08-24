@@ -40,37 +40,9 @@ class Declaration extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
-
-    // Actions métier demandées
-    public function modifier($data)
+    public function controleur()
     {
-        $this->update($data);
+        return $this->belongsTo(User::class, 'user_id_controleur', 'id');
     }
-
-    public function joindreFichier($filePath)
-    {
-        $this->fichier = $filePath;
-        $this->save();
-    }
-
-    public function envoyer()
-    {
-        $this->statut = 'envoyée';
-        $this->save();
-    }
-
-    // Fonctionnalités Contrôleur (à implémenter côté Controleur.php)
-    // public function photos() {...}
-    // public function commentaires() {...}
-    // public function validerProduit() {...}
-    // public function rejeterProduit() {...}
-
-    // Fonctionnalités Laborantin (à implémenter côté RapportAnalyse.php)
-    // public function remplirResultatAnalyse() {...}
-    // public function genererRapport() {...}
-    // public function soumettreRapport() {...}
-    // public function consulterHistorique() {...}
-
-    // Fonctionnalités Chef de service (à implémenter côté Dossier.php)
-    // public function voirTableauDeBord() {...}
+// ...existing code...
 }
